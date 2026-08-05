@@ -10,7 +10,7 @@
 
 - **Stack:** Vanilla JS ES Modules, IndexedDB (Dexie.js), Service Worker, Chart.js
 - **Arquitectura:** MVC + Service Layer + Repository Pattern
-- **Módulos:** Auth, Productos, Clientes, Proveedores, Ventas, Compras, Inventario, Contabilidad, Reportes, Configuración, Import/Export, Usuarios
+- **Módulos:** Auth, Productos, Miembros, Proveedores, Ventas, Compras, Inventario, Contabilidad, Reportes, Configuración, Import/Export, Usuarios, Entrenadores, Evolución Física, Activos Gimnasio, Mantenimiento, Membresías, Planes Membresía, Asistencias, Plugins
 - **Seguridad:** Sanitización XSS, validación de entrada, RBAC, offline-first
 
 ---

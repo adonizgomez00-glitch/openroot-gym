@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-const CACHE_NAME = 'open-rooterp-v1'
-const STATIC_CACHE = 'open-rooterp-static-v1'
+const CACHE_NAME = 'open-rootgym-v3'
+const STATIC_CACHE = 'open-rootgym-static-v3'
 
 const PRECACHE_URLS = [
   '/',
@@ -38,6 +38,7 @@ const PRECACHE_URLS = [
   '/assets/icons/icon-512.png',
   '/src/app.js',
   '/src/config/app.js',
+  '/src/config/plugins.js',
   '/src/database/db.js',
   '/src/database/seed.js',
   '/src/store/AppState.js',
@@ -47,7 +48,56 @@ const PRECACHE_URLS = [
   '/src/utils/sanitizer.js',
   '/src/utils/validators.js',
   '/src/models/Product.js',
-  '/src/models/Customer.js',
+  '/src/models/Member.js',
+  '/src/models/MembershipPlan.js',
+  '/src/models/Membership.js',
+  '/src/models/MembershipHistory.js',
+  '/src/models/MembershipPayment.js',
+  '/src/repositories/MemberRepository.js',
+  '/src/repositories/MembershipPlanRepository.js',
+  '/src/repositories/MembershipRepository.js',
+  '/src/repositories/MembershipHistoryRepository.js',
+  '/src/repositories/MembershipPaymentRepository.js',
+  '/src/services/MemberService.js',
+  '/src/services/MembershipPlanService.js',
+  '/src/services/MembershipService.js',
+  '/src/services/MembershipHistoryService.js',
+  '/src/services/MembershipPaymentService.js',
+  '/src/controllers/MemberController.js',
+  '/src/controllers/MembershipPlanController.js',
+  '/src/controllers/MembershipController.js',
+  '/src/controllers/MembershipHistoryController.js',
+  '/src/controllers/MembershipPaymentController.js',
+  '/src/views/MemberView.js',
+  '/src/views/MembershipPlanView.js',
+  '/src/views/MembershipView.js',
+  '/src/views/MembershipHistoryView.js',
+  '/src/views/MembershipPaymentView.js',
+  '/src/models/Attendance.js',
+  '/src/repositories/AttendanceRepository.js',
+  '/src/services/AttendanceService.js',
+  '/src/controllers/AttendanceController.js',
+  '/src/views/AttendanceView.js',
+  '/src/models/Trainer.js',
+  '/src/models/PhysicalEvolution.js',
+  '/src/repositories/TrainerRepository.js',
+  '/src/repositories/PhysicalEvolutionRepository.js',
+  '/src/services/TrainerService.js',
+  '/src/services/PhysicalEvolutionService.js',
+  '/src/controllers/TrainerController.js',
+  '/src/controllers/PhysicalEvolutionController.js',
+  '/src/views/TrainerView.js',
+  '/src/views/PhysicalEvolutionView.js',
+  '/src/models/GymAsset.js',
+  '/src/repositories/GymAssetRepository.js',
+  '/src/services/GymAssetService.js',
+  '/src/controllers/GymAssetController.js',
+  '/src/views/GymAssetView.js',
+  '/src/models/Maintenance.js',
+  '/src/repositories/MaintenanceRepository.js',
+  '/src/services/MaintenanceService.js',
+  '/src/controllers/MaintenanceController.js',
+  '/src/views/MaintenanceView.js',
   '/src/models/Supplier.js',
   '/src/models/Sale.js',
   '/src/models/SaleItem.js',
@@ -88,6 +138,7 @@ const PRECACHE_URLS = [
   '/src/services/PermissionService.js',
   '/src/services/AuthenticationService.js',
   '/src/services/SystemService.js',
+  '/src/services/PluginService.js',
   '/src/controllers/ProductController.js',
   '/src/controllers/CustomerController.js',
   '/src/controllers/SupplierController.js',
@@ -128,6 +179,7 @@ const PRECACHE_URLS = [
   '/src/components/Pagination.js',
   '/src/components/SearchBar.js',
   '/src/components/ConfirmDialog.js',
+  '/src/components/Combobox.js',
   '/src/controllers/UserController.js',
   '/src/views/UserView.js',
   '/src/models/Account.js',
@@ -135,7 +187,9 @@ const PRECACHE_URLS = [
   '/src/repositories/AccountingRepository.js',
   '/src/services/AccountingService.js',
   '/src/controllers/AccountingController.js',
-  '/src/views/AccountingView.js'
+  '/src/views/AccountingView.js',
+  '/src/controllers/PluginsController.js',
+  '/src/views/PluginsView.js'
 ]
 
 self.addEventListener('install', (event) => {

@@ -1,4 +1,5 @@
 import { Modal } from '../components/Modal.js'
+import { Combobox } from '../components/Combobox.js'
 import { Toast } from '../components/Toast.js'
 import { formatCurrency, getTaxRate } from '../utils/formatters.js'
 
@@ -33,19 +34,14 @@ export class SaleFormView {
     const label = document.createElement('label')
     label.className = 'sale-form__label'
     label.textContent = 'Cliente'
-    this._customerSelect = document.createElement('select')
-    this._customerSelect.className = 'sale-form__select'
-    const empty = document.createElement('option')
-    empty.value = ''
-    empty.textContent = 'Cliente ocasional (sin registro)'
-    this._customerSelect.appendChild(empty)
+    const options = [{ value: '', label: 'Cliente ocasional (sin registro)' }]
     customers.forEach(c => {
-      const opt = document.createElement('option')
-      opt.value = c.id
-      opt.textContent = `${c.name} (${c.documentId})`
-      this._customerSelect.appendChild(opt)
+      options.push({ value: c.id, label: `${c.name} (${c.documentId})` })
     })
-    group.append(label, this._customerSelect)
+    this._customerCombobox = new Combobox({ options, placeholder: 'Buscar cliente...' })
+    const comboboxEl = this._customerCombobox.render()
+    comboboxEl.classList.add('sale-form__combobox')
+    group.append(label, comboboxEl)
     return group
   }
   _createProductSection(products) {
@@ -209,9 +205,13 @@ export class SaleFormView {
   }
   _submit() {
     if (this._cart.length === 0) { Toast.warning('Agregue al menos un producto'); return }
-    const customerId = this._customerSelect.value ? Number(this._customerSelect.value) : null
+    const customerValue = this._customerCombobox.getValue()
+    const customerId = (customerValue === '' || customerValue === null || customerValue === undefined) ? null : Number(customerValue)
     let customerName = 'Cliente ocasional'
-    if (customerId && this._customerSelect.selectedOptions[0]) customerName = this._customerSelect.selectedOptions[0].textContent.split(' (')[0]
+    if (customerId) {
+      const label = this._customerCombobox.getLabel() || ''
+      customerName = label.split(' (')[0] || 'Cliente ocasional'
+    }
     if (this._onSubmit) this._onSubmit({ saleData: { customerId, customerName, notes: this._notesInput.value }, items: this._cart.map(i => ({ ...i })) })
   }
 

@@ -4,7 +4,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog.js'
 import { Toast } from '../components/Toast.js'
 import { Loader } from '../components/Loader.js'
 import { PurchaseFormView } from './PurchaseFormView.js'
-import { formatCurrency, formatDateTime } from '../utils/formatters.js'
+import { formatCurrency, formatDate } from '../utils/formatters.js'
 
 export class PurchaseView {
   constructor() {
@@ -57,7 +57,7 @@ export class PurchaseView {
     this._purchasesTable = new Table({
       columns: [
         { key: 'id', label: 'N°', width: '60px' },
-        { key: 'date', label: 'Fecha', width: '160px', render: (v) => formatDateTime(v) },
+        { key: 'date', label: 'Fecha', width: '160px', render: (v) => formatDate(v) },
         { key: 'supplierName', label: 'Proveedor' },
         { key: 'total', label: 'Total', width: '120px', render: (v) => formatCurrency(v) },
         {
@@ -147,7 +147,7 @@ export class PurchaseView {
       return row
     }
     info.appendChild(addRow('Compra N°:', String(purchase.id)))
-    info.appendChild(addRow('Fecha:', formatDateTime(purchase.date)))
+    info.appendChild(addRow('Fecha:', formatDate(purchase.date)))
     info.appendChild(addRow('Proveedor:', purchase.supplierName || '—'))
 
     const statusRow = document.createElement('div')

@@ -270,14 +270,14 @@ async function runAll() {
     // CUSTOMERS ADVERSARIAL
     // ══════════════════════════════════════════════
 
-    await (test('C01 — Open customers module', async () => {
-      await openModule('customers')
+    await (test('C01 — Open members module', async () => {
+      await openModule('members')
       await wait(300)
-      assert(true, 'Customers module loaded')
+      assert(true, 'Members module loaded')
     }))()
 
-    await (test('C02 — Create customer with empty name shows inline error', async () => {
-      await click('button:has-text("+ Nuevo Cliente")')
+    await (test('C02 — Create member with empty name shows inline error', async () => {
+      await click('button:has-text("+ Nuevo Miembro")')
       await waitFor('#field-name')
       await fill('#field-name', '')
       await submitForm()
@@ -288,10 +288,10 @@ async function runAll() {
       await safeCloseModal()
     }))()
 
-    await (test('C03 — Create customer with SQL injection in document', async () => {
-      await click('button:has-text("+ Nuevo Cliente")')
+    await (test('C03 — Create member with SQL injection in document', async () => {
+      await click('button:has-text("+ Nuevo Miembro")')
       await waitFor('#field-name')
-      await fill('#field-name', 'SQLi Customer')
+      await fill('#field-name', 'SQLi Member')
       await fill('#field-documentId', "' OR 1=1--")
       await submitForm()
       await wait(500)
@@ -299,8 +299,8 @@ async function runAll() {
       await safeCloseModal()
     }))()
 
-    await (test('C04 — Create customer with invalid email', async () => {
-      await click('button:has-text("+ Nuevo Cliente")')
+    await (test('C04 — Create member with invalid email', async () => {
+      await click('button:has-text("+ Nuevo Miembro")')
       await waitFor('#field-name')
       await fill('#field-name', 'Bad Email')
       await fill('#field-documentId', 'DOC-BADEMAIL')
@@ -311,8 +311,8 @@ async function runAll() {
       await safeCloseModal()
     }))()
 
-    await (test('C05 — Create valid customers for sale tests', async () => {
-      await click('button:has-text("+ Nuevo Cliente")')
+    await (test('C05 — Create valid members for sale tests', async () => {
+      await click('button:has-text("+ Nuevo Miembro")')
       await waitFor('#field-name')
       await fill('#field-name', 'Juan Pérez')
       await fill('#field-documentId', 'C001')
@@ -321,7 +321,7 @@ async function runAll() {
       await submitForm()
       await waitForToastContaining('creado')
 
-      await click('button:has-text("+ Nuevo Cliente")')
+      await click('button:has-text("+ Nuevo Miembro")')
       await waitFor('#field-name')
       await fill('#field-name', 'María García')
       await fill('#field-documentId', 'C002')
@@ -331,7 +331,7 @@ async function runAll() {
     }))()
 
     await (test('C06 — Duplicate document ID shows error', async () => {
-      await click('button:has-text("+ Nuevo Cliente")')
+      await click('button:has-text("+ Nuevo Miembro")')
       await waitFor('#field-name')
       await fill('#field-name', 'Duplicate Doc')
       await fill('#field-documentId', 'C001')

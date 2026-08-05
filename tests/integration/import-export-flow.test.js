@@ -3,7 +3,7 @@ import { ImportService } from '../../src/services/ImportService.js'
 import { assert, createMockDB, SEED_ACCOUNTS, seedAccounts } from './helpers.js'
 
 function createRepoFromTable(db, tableName, options = {}) {
-  const { withFindById, withFindByDocumentId, withFindByCode, withUpdateStock, withSet, withGenerateNextCode, withGenerateNextDocumentId, withFindByCustomerAndDate, withFindBySupplierAndDate } = options
+  const { withFindById, withFindByDocumentId, withFindByCode, withUpdateStock, withSet, withGenerateNextCode, withGenerateNextDocumentId, withFindByMemberAndDate, withFindBySupplierAndDate } = options
   const api = {
     async findAll() { return (await db[tableName].toArray()).map(d => ({ ...d })) },
     async findById(id) {
@@ -28,7 +28,7 @@ function createRepoFromTable(db, tableName, options = {}) {
       return `PROD-${String(max + 1).padStart(3, '0')}`
     },
     async generateNextDocumentId() {
-      if (!withGenerateNextDocumentId) return 'C001'
+      if (!withGenerateNextDocumentId) return 'M001'
       const all = await db[tableName].toArray()
       const max = all.reduce((m, c) => { const n = parseInt((c.documentId || 'C0').replace('C', '')); return n > m ? n : m }, 0)
       return `C${String(max + 1).padStart(3, '0')}`
@@ -71,10 +71,10 @@ function createRepoFromTable(db, tableName, options = {}) {
       await db[tableName].add(stored)
       return { ...stored }
     },
-    async findByCustomerAndDate(customerId, date) {
-      if (!withFindByCustomerAndDate) return null
+    async findByCustomerAndDate(memberId, date) {
+      if (!withFindByMemberAndDate) return null
       const all = await db[tableName].toArray()
-      return all.find(d => d.customerId === customerId && d.date === date) || null
+      return all.find(d => d.customerId === memberId && d.date === date) || null
     },
     async findBySupplierAndDate(supplierId, date) {
       if (!withFindBySupplierAndDate) return null
@@ -143,10 +143,10 @@ function createRepoFromTable(db, tableName, options = {}) {
       return `C${String(max + 1).padStart(3, '0')}`
     }
   }
-  if (withFindByCustomerAndDate) {
-    api.findByCustomerAndDate = async (customerId, date) => {
+  if (withFindByMemberAndDate) {
+    api.findByCustomerAndDate = async (memberId, date) => {
       const all = await db[tableName].toArray()
-      return all.find(d => d.customerId === customerId && d.date === date) || null
+      return all.find(d => d.customerId === memberId && d.date === date) || null
     }
   }
   if (withFindBySupplierAndDate) {
@@ -179,9 +179,9 @@ function createSaleRepoWithItems(db, saleIdCounter) {
       return this.findById(id)
     },
     async count() { return db.sales.count() },
-    async findByCustomerAndDate(customerId, date) {
+    async findByCustomerAndDate(memberId, date) {
       const all = await db.sales.toArray()
-      return all.find(d => d.customerId === customerId && d.date === date) || null
+      return all.find(d => d.customerId === memberId && d.date === date) || null
     }
   }
 }
@@ -219,48 +219,48 @@ async function testExportFullDataAndReimport() {
   const now = new Date().toISOString()
 
   const productData = { id: 1, code: 'PROD-001', name: 'Producto Test', category: 'Test', purchasePrice: 50, salePrice: 100, stock: 10, stockMin: 2, active: true, createdAt: now, updatedAt: now }
-  const customerData = { id: 1, documentId: 'C001', name: 'Cliente Test', email: 'test@test.com', phone: '5555-0000', address: '', active: true, createdAt: now, updatedAt: now }
+  const customerData = { id: 1, documentId: 'M001', name: 'Miembro Test', email: 'test@test.com', phone: '5555-0000', address: '', active: true, createdAt: now, updatedAt: now }
   const supplierData = { id: 1, documentId: 'PROV-001', name: 'Proveedor Test', email: 'prov@test.com', phone: '5555-0000', address: '', active: true, createdAt: now, updatedAt: now }
   const settingData = { id: 1, key: 'tax_rate', value: '18', updatedAt: now }
   const movementData = { id: 1, productId: 1, productName: 'Producto Test', type: 'entry', quantity: 10, stockBefore: 0, stockAfter: 10, reference: 'initial', date: now }
 
   await db.products.add(productData)
-  await db.customers.add(customerData)
+  await db.members.add(customerData)
   await db.suppliers.add(supplierData)
   await db.settings.add(settingData)
   await db.inventoryMovements.add(movementData)
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true, withFindByCode: true, withGenerateNextCode: true, withUpdateStock: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true, withFindByDocumentId: true, withGenerateNextDocumentId: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true, withFindByDocumentId: true, withGenerateNextDocumentId: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true, withFindByDocumentId: true, withGenerateNextDocumentId: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true, withSet: true })
-  const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true, withFindByCustomerAndDate: true })
+  const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true, withFindByMemberAndDate: true })
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true, withFindBySupplierAndDate: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const exportSvc = new ExportService(productRepo, customerRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const exportSvc = new ExportService(productRepo, memberRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
 
   const exported = await exportSvc.getAllData()
   assert(exported.products.length === 1, 'Should export 1 product')
-  assert(exported.customers.length === 1, 'Should export 1 customer')
+  assert(exported.members.length === 1, 'Should export 1 customer')
   assert(exported.suppliers.length === 1, 'Should export 1 supplier')
   assert(exported.movements.length === 1, 'Should export 1 movement')
   assert(exported.settings.length === 1, 'Should export 1 setting')
 
   db.products.clear()
-  db.customers.clear()
+  db.members.clear()
   db.suppliers.clear()
   db.settings.clear()
   db.inventoryMovements.clear()
 
   assert((await db.products.count()) === 0, 'Products should be empty after clear')
-  assert((await db.customers.count()) === 0, 'Customers should be empty after clear')
+  assert((await db.members.count()) === 0, 'Members should be empty after clear')
 
   const importResult = await importSvc.importFullExport(exported)
   assert(importResult.totalImported === 5, `Should import 5 entities total, got ${importResult.totalImported}`)
   assert((await db.products.count()) === 1, 'Products should be restored')
-  assert((await db.customers.count()) === 1, 'Customers should be restored')
+  assert((await db.members.count()) === 1, 'Members should be restored')
   assert((await db.suppliers.count()) === 1, 'Suppliers should be restored')
   assert((await db.settings.count()) === 1, 'Settings should be restored')
   assert((await db.inventoryMovements.count()) === 1, 'Movements should be restored')
@@ -286,14 +286,14 @@ async function testExportCSVAndReimportProducts() {
   for (const p of products) await db.products.add(p)
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true, withFindByCode: true, withGenerateNextCode: true, withUpdateStock: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true })
   const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true })
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const exportSvc = new ExportService(productRepo, customerRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
+  const exportSvc = new ExportService(productRepo, memberRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
 
   const exportedProducts = await exportSvc.getEntityData('products')
   assert(exportedProducts.length === 2, 'Should export 2 products')
@@ -309,7 +309,7 @@ async function testExportCSVAndReimportProducts() {
   db.products.clear()
   assert((await db.products.count()) === 0, 'Products should be empty')
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
   const result = await importSvc.importData('auto', parsedRecords)
   assert(result.imported === 2, `Should import 2 products, got ${result.imported}`)
   assert(result.errors.length === 0, 'Should have no errors')
@@ -323,45 +323,45 @@ async function testExportCSVAndReimportProducts() {
   console.log('  ✓ testExportCSVAndReimportProducts')
 }
 
-async function testExportCSVAndReimportCustomers() {
+async function testExportCSVAndReimportMembers() {
   const db = createMockDB()
   const now = new Date().toISOString()
 
-  const customers = [
-    { id: 1, documentId: 'C001', name: 'Juan Pérez', email: 'juan@test.com', phone: '5555-0001', address: 'Calle 1', active: true, createdAt: now, updatedAt: now },
-    { id: 2, documentId: 'C002', name: 'María García', email: 'maria@test.com', phone: '5555-0002', address: 'Calle 2', active: true, createdAt: now, updatedAt: now }
+  const members = [
+    { id: 1, documentId: 'M001', name: 'Juan Pérez', email: 'juan@test.com', phone: '5555-0001', address: 'Calle 1', active: true, createdAt: now, updatedAt: now },
+    { id: 2, documentId: 'M002', name: 'María García', email: 'maria@test.com', phone: '5555-0002', address: 'Calle 2', active: true, createdAt: now, updatedAt: now }
   ]
-  for (const c of customers) await db.customers.add(c)
+  for (const c of members) await db.members.add(c)
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true, withFindByDocumentId: true, withGenerateNextDocumentId: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true, withFindByDocumentId: true, withGenerateNextDocumentId: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true })
   const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true })
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const exportSvc = new ExportService(productRepo, customerRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
-  const exported = await exportSvc.getEntityData('customers')
-  assert(exported.length === 2, 'Should export 2 customers')
+  const exportSvc = new ExportService(productRepo, memberRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
+  const exported = await exportSvc.getEntityData('members')
+  assert(exported.length === 2, 'Should export 2 members')
 
   const csv = ExportService.toCSV(exported)
   const parsed = ImportService.parseCSV(csv)
   assert(parsed.length === 2, 'CSV should parse to 2 records')
 
-  db.customers.clear()
-  assert((await db.customers.count()) === 0, 'Customers should be empty')
+  db.members.clear()
+  assert((await db.members.count()) === 0, 'Members should be empty')
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
   const result = await importSvc.importData('auto', parsed)
-  assert(result.imported === 2, `Should import 2 customers, got ${result.imported}`)
-  assert((await db.customers.count()) === 2, 'Customers should be restored')
+  assert(result.imported === 2, `Should import 2 members, got ${result.imported}`)
+  assert((await db.members.count()) === 2, 'Members should be restored')
 
-  const restored = await db.customers.toArray()
+  const restored = await db.members.toArray()
   assert(restored.some(c => c.name === 'Juan Pérez'), 'Juan Pérez should exist')
   assert(restored.some(c => c.email === 'maria@test.com'), 'María García should exist')
 
-  console.log('  ✓ testExportCSVAndReimportCustomers')
+  console.log('  ✓ testExportCSVAndReimportMembers')
 }
 
 async function testImportInventoryUpdatesStock() {
@@ -371,14 +371,14 @@ async function testImportInventoryUpdatesStock() {
   await db.products.add({ id: 1, code: 'PROD-001', name: 'Producto Stock', category: 'Test', purchasePrice: 50, salePrice: 100, stock: 20, stockMin: 2, active: true, createdAt: now, updatedAt: now })
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true, withFindByCode: true, withFindById: true, withUpdateStock: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true })
   const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true })
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
 
   const result = await importSvc.importData('inventory', [
     { product: 'PROD-001', type: 'entry', quantity: '5', date: now }
@@ -404,46 +404,46 @@ async function testImportInventoryUpdatesStock() {
   console.log('  ✓ testImportInventoryUpdatesStock')
 }
 
-async function testImportSalesWithOcasionalCustomer() {
+async function testImportSalesWithOcasionalMember() {
   const db = createMockDB()
   const now = new Date().toISOString()
 
   await db.products.add({ id: 1, code: 'PROD-001', name: 'Producto Venta', category: 'Test', purchasePrice: 50, salePrice: 100, stock: 10, stockMin: 2, active: true, createdAt: now, updatedAt: now })
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true, withFindByCode: true, withFindById: true, withUpdateStock: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true, withFindByDocumentId: true, withGenerateNextDocumentId: true, withFindById: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true, withFindByDocumentId: true, withGenerateNextDocumentId: true, withFindById: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true })
   const saleRepo = createSaleRepoWithItems(db, 100)
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
 
   const result = await importSvc.importSales([
-    { customerName: 'Cliente ocasional', date: now, total: '100', tax: '18', items: [{ productId: 1, quantity: 1, price: 100 }] }
+    { memberName: 'Miembro ocasional', date: now, total: '100', tax: '18', items: [{ productId: 1, quantity: 1, price: 100 }] }
   ])
 
   assert(result.imported === 1, 'Should import 1 sale')
   assert(result.errors.length === 0, 'Should have no errors')
 
-  const customers = await db.customers.toArray()
-  const ocasional = customers.find(c => c.documentId === 'C-OCASIONAL')
-  assert(ocasional, 'Cliente ocasional should be auto-created')
-  assert(ocasional.name === 'Cliente ocasional', `Name should be 'Cliente ocasional', got ${ocasional.name}`)
+  const members = await db.members.toArray()
+  const ocasional = members.find(c => c.documentId === 'M-OCASIONAL')
+  assert(ocasional, 'Miembro ocasional should be auto-created')
+  assert(ocasional.name === 'Miembro ocasional', `Name should be 'Miembro ocasional', got ${ocasional.name}`)
 
   const sales = await db.sales.toArray()
   assert(sales.length === 1, 'Should have 1 sale')
   assert(sales[0].total === 100, `Sale total should be 100, got ${sales[0].total}`)
 
   const secondResult = await importSvc.importSales([
-    { customerName: 'Cliente ocasional', date: now, total: '200', tax: '36', items: [{ productId: 1, quantity: 2, price: 100 }] }
+    { memberName: 'Miembro ocasional', date: now, total: '200', tax: '36', items: [{ productId: 1, quantity: 2, price: 100 }] }
   ])
   assert(secondResult.imported === 0, 'Second sale should be skipped as duplicate')
   assert(secondResult.skipped === 1, 'Should skip 1 duplicate')
   assert(secondResult.errors[0].message.includes('duplicada'), 'Should mention duplicate')
 
-  console.log('  ✓ testImportSalesWithOcasionalCustomer')
+  console.log('  ✓ testImportSalesWithOcasionalMember')
 }
 
 async function testImportFullExportWithAccountingEntries() {
@@ -452,7 +452,7 @@ async function testImportFullExportWithAccountingEntries() {
 
   await seedAccounts(db)
   await db.products.add({ id: 1, code: 'PROD-001', name: 'Producto Contable', category: 'Test', purchasePrice: 50, salePrice: 100, stock: 10, stockMin: 2, active: true, createdAt: now, updatedAt: now })
-  await db.customers.add({ id: 1, documentId: 'C001', name: 'Cliente Contable', email: 'c@test.com', phone: '', address: '', active: true, createdAt: now, updatedAt: now })
+  await db.members.add({ id: 1, documentId: 'M001', name: 'Miembro Contable', email: 'c@test.com', phone: '', address: '', active: true, createdAt: now, updatedAt: now })
 
   await db.accountingEntries.add({
     id: 1, referenceType: 'sale', referenceId: 100, date: now,
@@ -468,7 +468,7 @@ async function testImportFullExportWithAccountingEntries() {
   })
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true, withFindByCode: true, withFindById: true, withUpdateStock: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true })
   const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true })
@@ -477,19 +477,19 @@ async function testImportFullExportWithAccountingEntries() {
   const accountingRepo = createRepoFromTable(db, 'accountingEntries', { withFindAll: true })
   const accountRepo = createRepoFromTable(db, 'accounts', { withFindAll: true })
 
-  const exportSvc = new ExportService(productRepo, customerRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
+  const exportSvc = new ExportService(productRepo, memberRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
   const exported = await exportSvc.getAllData()
   assert(exported.products.length === 1, 'Should export 1 product')
 
   db.products.clear()
-  db.customers.clear()
+  db.members.clear()
   db.suppliers.clear()
   db.settings.clear()
   db.inventoryMovements.clear()
   db.sales.clear()
   db.purchases.clear()
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
   const result = await importSvc.importFullExport(exported)
   assert(result.totalImported >= 1, 'Should import at least product entity')
 
@@ -504,14 +504,14 @@ async function testImportAutoDetectFullFlow() {
   const db = createMockDB()
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true, withFindByCode: true, withFindById: true, withUpdateStock: true, withGenerateNextCode: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true, withSet: true })
   const saleRepo = createSaleRepoWithItems(db, 100)
   const purchaseRepo = createPurchaseRepoWithItems(db, 200)
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
 
   const productResult = await importSvc.importData('auto', [
     { name: 'Laptop', code: 'LAP-001', purchasePrice: '800', salePrice: '1200', stock: '5', category: 'Electrónica' }
@@ -520,10 +520,10 @@ async function testImportAutoDetectFullFlow() {
   assert((await db.products.count()) === 1, 'Product should be in DB')
 
   const customerResult = await importSvc.importData('auto', [
-    { documentId: 'C100', name: 'Cliente Nuevo', email: 'nuevo@test.com', phone: '123456789' }
+    { documentId: 'M100', name: 'Miembro Nuevo', email: 'nuevo@test.com', phone: '123456789' }
   ])
-  assert(customerResult.imported === 1, 'Customer with documentId/email should auto-detect')
-  assert((await db.customers.count()) === 1, 'Customer should be in DB')
+  assert(customerResult.imported === 1, 'Member with documentId/email should auto-detect')
+  assert((await db.members.count()) === 1, 'Member should be in DB')
 
   const supplierResult = await importSvc.importData('auto', [
     { documentId: 'PROV-100', name: 'Proveedor Nuevo', email: 'prov@test.com' }
@@ -559,7 +559,7 @@ async function testImportAutoDetectFullFlow() {
 async function testImportRequiresManualEntitySelection() {
   const db = createMockDB()
 
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true })
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true })
@@ -567,7 +567,7 @@ async function testImportRequiresManualEntitySelection() {
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
 
   try {
     await importSvc.importData('auto', [
@@ -576,11 +576,11 @@ async function testImportRequiresManualEntitySelection() {
     const errorMsg = 'Should have thrown: ambiguous entity without discriminators should require manual selection'
     assert(false, errorMsg)
   } catch (error) {
-    assert(error.message.includes('distinguir entre Clientes y Proveedores'),
+    assert(error.message.includes('distinguir entre Miembros y Proveedores'),
       `Error should ask for manual selection: ${error.message}`)
   }
 
-  assert((await db.customers.count()) === 0, 'No customers should be saved on ambiguity')
+  assert((await db.members.count()) === 0, 'No members should be saved on ambiguity')
   assert((await db.suppliers.count()) === 0, 'No suppliers should be saved on ambiguity')
 
   console.log('  ✓ testImportRequiresManualEntitySelection')
@@ -591,19 +591,19 @@ async function testExportJSONAndReimportWithFullExport() {
   const now = new Date().toISOString()
 
   await db.products.add({ id: 1, code: 'PROD-001', name: 'Producto JSON', category: 'Test', purchasePrice: 40, salePrice: 80, stock: 15, stockMin: 3, active: true, createdAt: now, updatedAt: now })
-  await db.customers.add({ id: 1, documentId: 'C001', name: 'Cliente JSON', email: 'cli@test.com', phone: '5555-0000', address: '', active: true, createdAt: now, updatedAt: now })
+  await db.members.add({ id: 1, documentId: 'M001', name: 'Miembro JSON', email: 'cli@test.com', phone: '5555-0000', address: '', active: true, createdAt: now, updatedAt: now })
   await db.suppliers.add({ id: 1, documentId: 'PROV-001', name: 'Proveedor JSON', email: 'prov@test.com', phone: '5555-0000', address: '', active: true, createdAt: now, updatedAt: now })
   await db.settings.add({ id: 1, key: 'tax_rate', value: '12', updatedAt: now })
 
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true, withFindByCode: true, withUpdateStock: true, withGenerateNextCode: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true, withFindByDocumentId: true, withFindById: true, withGenerateNextDocumentId: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true, withSet: true })
   const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true })
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const exportSvc = new ExportService(productRepo, customerRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
+  const exportSvc = new ExportService(productRepo, memberRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
   const exported = await exportSvc.getAllData()
 
   const jsonStr = ExportService.toJSON(exported)
@@ -611,16 +611,16 @@ async function testExportJSONAndReimportWithFullExport() {
 
   assert(ImportService.isFullExport(parsed) === true, 'Parsed JSON should be detected as full export')
   assert(parsed.products.length === 1, 'Products in parsed JSON')
-  assert(parsed.customers.length === 1, 'Customers in parsed JSON')
+  assert(parsed.members.length === 1, 'Members in parsed JSON')
   assert(parsed.suppliers.length === 1, 'Suppliers in parsed JSON')
   assert(parsed.settings.length === 1, 'Settings in parsed JSON')
 
   db.products.clear()
-  db.customers.clear()
+  db.members.clear()
   db.suppliers.clear()
   db.settings.clear()
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
   const result = await importSvc.importFullExport(parsed)
 
   assert(result.totalImported === 4, `Should import 4 entities, got ${result.totalImported}`)
@@ -631,9 +631,9 @@ async function testExportJSONAndReimportWithFullExport() {
   assert(restoredProduct.name === 'Producto JSON', 'Product name should match')
   assert(restoredProduct.stock === 15, 'Product stock should be restored')
 
-  const restoredCustomer = await customerRepo.findByDocumentId('C001')
-  assert(restoredCustomer, 'Customer C001 should exist')
-  assert(restoredCustomer.email === 'cli@test.com', 'Customer email should match')
+  const restoredMember = await memberRepo.findByDocumentId('M001')
+  assert(restoredMember, 'Member C001 should exist')
+  assert(restoredMember.email === 'cli@test.com', 'Member email should match')
 
   const restoredSupplier = await supplierRepo.findByDocumentId('PROV-001')
   assert(restoredSupplier, 'Supplier PROV-001 should exist')
@@ -649,18 +649,18 @@ async function testExportJSONAndReimportWithFullExport() {
 async function testImportFullExportEmptyArrays() {
   const db = createMockDB()
   const productRepo = createRepoFromTable(db, 'products', { withFindAll: true })
-  const customerRepo = createRepoFromTable(db, 'customers', { withFindAll: true })
+  const memberRepo = createRepoFromTable(db, 'members', { withFindAll: true })
   const supplierRepo = createRepoFromTable(db, 'suppliers', { withFindAll: true })
   const settingRepo = createRepoFromTable(db, 'settings', { withFindAll: true })
   const saleRepo = createRepoFromTable(db, 'sales', { withFindAll: true })
   const purchaseRepo = createRepoFromTable(db, 'purchases', { withFindAll: true })
   const inventoryRepo = createRepoFromTable(db, 'inventoryMovements', { withFindAll: true })
 
-  const importSvc = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
+  const importSvc = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, null)
 
   const result = await importSvc.importFullExport({
     products: [],
-    customers: [],
+    members: [],
     suppliers: [],
     movements: [],
     sales: [],
@@ -679,9 +679,9 @@ export async function runImportExportFlowTests() {
 
   await testExportFullDataAndReimport()
   await testExportCSVAndReimportProducts()
-  await testExportCSVAndReimportCustomers()
+  await testExportCSVAndReimportMembers()
   await testImportInventoryUpdatesStock()
-  await testImportSalesWithOcasionalCustomer()
+  await testImportSalesWithOcasionalMember()
   await testImportFullExportWithAccountingEntries()
   await testImportAutoDetectFullFlow()
   await testImportRequiresManualEntitySelection()

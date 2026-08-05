@@ -1,20 +1,20 @@
 import { SaleService } from '../../src/services/SaleService.js'
 import { getTaxRate, setTaxRate } from '../../src/utils/formatters.js'
-import { assert, createMockDB, seedProduct, seedCustomer } from './helpers.js'
+import { assert, createMockDB, seedProduct, seedMember } from './helpers.js'
 
 export async function runInsufficientStockTests() {
   setTaxRate(0.12)
 
   const db = createMockDB()
   const product = await seedProduct(db, { id: 100, purchasePrice: 50, salePrice: 100, stock: 2 })
-  const customer = await seedCustomer(db)
+  const customer = await seedMember(db)
 
   const productRepo = {
     async findById(id) { const d = await db.products.get(id); return d ? { ...d } : null },
     async update(id, changes) { await db.products.update(id, changes); return this.findById(id) },
     async findAll() { return (await db.products.toArray()).map(d => ({ ...d })) }
   }
-  const customerRepo = { async findById(id) { const d = await db.customers.get(id); return d ? { ...d } : null } }
+  const memberRepo = { async findById(id) { const d = await db.members.get(id); return d ? { ...d } : null } }
   const inventoryRepo = {
     async getStockByProduct(productId) {
       const all = await db.inventoryMovements.toArray()
@@ -43,12 +43,12 @@ export async function runInsufficientStockTests() {
     async count() { return db.sales.count() }
   }
 
-  const saleService = new SaleService(db, saleRepo, productRepo, customerRepo, inventoryRepo)
+  const saleService = new SaleService(db, saleRepo, productRepo, memberRepo, inventoryRepo)
 
   // Test 1: Sale with more quantity than available stock should throw
   try {
     await saleService.createSale(
-      { customerId: customer.id, customerName: customer.name },
+      { memberId: customer.id, memberName: customer.name },
       [{ productId: product.id, quantity: 10, unitPrice: 100 }]
     )
     assert(false, 'Should have thrown for insufficient stock')
@@ -58,7 +58,7 @@ export async function runInsufficientStockTests() {
 
   // Test 2: Sale with exact available stock should succeed (stock = 2, sell 2)
   const sale = await saleService.createSale(
-    { customerId: customer.id, customerName: customer.name },
+    { memberId: customer.id, memberName: customer.name },
     [{ productId: product.id, quantity: 2, unitPrice: 100 }]
   )
   assert(sale.status === 'completed', 'Sale with exact available stock should succeed')
@@ -66,7 +66,7 @@ export async function runInsufficientStockTests() {
   // Test 3: After consuming remaining stock, another sale should fail
   try {
     await saleService.createSale(
-      { customerId: customer.id, customerName: customer.name },
+      { memberId: customer.id, memberName: customer.name },
       [{ productId: product.id, quantity: 1, unitPrice: 100 }]
     )
     assert(false, 'Should have thrown for insufficient stock after consuming all stock')
@@ -77,7 +77,7 @@ export async function runInsufficientStockTests() {
   // Test 4: Sale with quantity 0 should throw
   try {
     await saleService.createSale(
-      { customerId: customer.id, customerName: customer.name },
+      { memberId: customer.id, memberName: customer.name },
       [{ productId: product.id, quantity: 0, unitPrice: 100 }]
     )
     assert(false, 'Should have thrown for quantity 0')
@@ -88,7 +88,7 @@ export async function runInsufficientStockTests() {
   // Test 5: Sale with negative quantity should throw
   try {
     await saleService.createSale(
-      { customerId: customer.id, customerName: customer.name },
+      { memberId: customer.id, memberName: customer.name },
       [{ productId: product.id, quantity: -1, unitPrice: 100 }]
     )
     assert(false, 'Should have thrown for negative quantity')
@@ -99,18 +99,18 @@ export async function runInsufficientStockTests() {
   // Test 6: Sale with nonexistent customer should throw
   try {
     await saleService.createSale(
-      { customerId: 99999, customerName: 'No existe' },
+      { memberId: 99999, memberName: 'No existe' },
       [{ productId: product.id, quantity: 1, unitPrice: 100 }]
     )
     assert(false, 'Should have thrown for nonexistent customer')
   } catch (error) {
-    assert(error.message.includes('Cliente no encontrado'), `Error should mention customer not found: ${error.message}`)
+    assert(error.message.includes('Miembro no encontrado'), `Error should mention customer not found: ${error.message}`)
   }
 
   // Test 7: Sale with nonexistent product should throw
   try {
     await saleService.createSale(
-      { customerId: customer.id, customerName: customer.name },
+      { memberId: customer.id, memberName: customer.name },
       [{ productId: 99999, quantity: 1, unitPrice: 100 }]
     )
     assert(false, 'Should have thrown for nonexistent product')

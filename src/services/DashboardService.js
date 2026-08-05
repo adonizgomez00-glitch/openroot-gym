@@ -1,12 +1,20 @@
 export class DashboardService {
-  constructor(saleRepository, purchaseRepository, productRepository, customerRepository, supplierRepository, inventoryRepository) {
-    this._saleRepo = saleRepository
-    this._purchaseRepo = purchaseRepository
-    this._productRepo = productRepository
-    this._customerRepo = customerRepository
-    this._supplierRepo = supplierRepository
-    this._inventoryRepo = inventoryRepository
-  }
+  constructor(saleRepository, purchaseRepository, productRepository, memberRepository, supplierRepository, inventoryRepository, membershipPlanRepository, membershipRepository, membershipPaymentRepository, attendanceRepository, trainerRepo, physicalEvolutionRepo, gymAssetRepo, maintenanceRepo) {
+      this._saleRepo = saleRepository
+      this._purchaseRepo = purchaseRepository
+      this._productRepo = productRepository
+      this._memberRepo = memberRepository
+      this._supplierRepo = supplierRepository
+      this._inventoryRepo = inventoryRepository
+      this._membershipPlanRepo = membershipPlanRepository
+      this._membershipRepo = membershipRepository
+      this._membershipPaymentRepo = membershipPaymentRepository
+      this._attendanceRepo = attendanceRepository
+      this._trainerRepo = trainerRepo
+      this._physicalEvolutionRepo = physicalEvolutionRepo
+      this._gymAssetRepo = gymAssetRepo
+      this._maintenanceRepo = maintenanceRepo
+    }
 
   async getKPIs() {
     const today = new Date()
@@ -24,14 +32,22 @@ export class DashboardService {
       suppliers,
       todaySales,
       monthPurchases,
-      lowStockProducts
+      lowStockProducts,
+      membershipsExpiring,
+      membershipPaymentsToday,
+      membershipPaymentsMonth,
+      attendanceToday
     ] = await Promise.all([
       this._productRepo.findAll(),
-      this._customerRepo.count(),
+      this._memberRepo.count(),
       this._supplierRepo.count(),
       this._saleRepo.findByDateRange(todayStr, tomorrowStr),
       this._purchaseRepo.findByDateRange(monthStart, tomorrowStr),
       this._findLowStock(),
+      this._membershipRepo.findExpiringSoon(7),
+      this._membershipPaymentRepo.findByDateRange(todayStr, tomorrowStr),
+      this._membershipPaymentRepo.findByDateRange(monthStart, tomorrowStr),
+      this._attendanceRepo.findByDateRange(todayStr, tomorrowStr)
     ])
 
     const todaySalesCompleted = todaySales.filter(s => s.status === 'completed')
@@ -42,10 +58,13 @@ export class DashboardService {
     const monthPurchasesTotal = monthPurchasesCompleted.reduce((sum, p) => sum + p.total, 0)
     const monthPurchasesCount = monthPurchasesCompleted.length
 
+    const todayMembershipRevenue = membershipPaymentsToday.reduce((sum, p) => sum + p.amount, 0)
+    const monthMembershipRevenue = membershipPaymentsMonth.reduce((sum, p) => sum + p.amount, 0)
+
     const lowStockCount = lowStockProducts.length
     const totalProducts = products.length
 
-    return { todaySales: todaySalesCount, todayRevenue, monthPurchases: monthPurchasesCount, monthPurchasesTotal, totalProducts, totalCustomers: customers, totalSuppliers: suppliers, lowStock: lowStockCount, criticalStock: this._countCriticalStock(products) }
+    return { todaySales: todaySalesCount, todayRevenue, monthPurchases: monthPurchasesCount, monthPurchasesTotal, totalProducts, totalMembers: customers, totalSuppliers: suppliers, lowStock: lowStockCount, criticalStock: this._countCriticalStock(products), membershipsExpiring: membershipsExpiring.length, todayMembershipRevenue, monthMembershipRevenue, attendanceToday: attendanceToday.length }
   }
 
   async getMonthlySales(monthsBack = 12) {

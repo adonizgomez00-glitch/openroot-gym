@@ -1,4 +1,4 @@
-import { formatCurrency, formatDateTime } from '../utils/formatters.js'
+import { formatCurrency, formatDate } from '../utils/formatters.js'
 
 const REF_TYPE_LABELS = {
   sale: 'Venta',
@@ -46,7 +46,7 @@ export class AccountingJournalView {
 
       const dateSpan = document.createElement('span')
       dateSpan.className = 'acct-entry-date'
-      dateSpan.textContent = formatDateTime(entry.date)
+      dateSpan.textContent = formatDate(entry.date)
 
       ref.appendChild(refLabel)
       ref.appendChild(dateSpan)

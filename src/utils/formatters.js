@@ -1,6 +1,3 @@
-const DATE_OPTIONS = { year: 'numeric', month: '2-digit', day: '2-digit' }
-const DATETIME_OPTIONS = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }
-
 let _currencySymbol = 'Q '
 let _taxRate = 0.12
 
@@ -26,14 +23,13 @@ export function formatDate(date) {
   if (!date) return ''
   const d = new Date(date)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString('es-GT', DATE_OPTIONS)
+  const dd = String(d.getUTCDate()).padStart(2, '0')
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  return `${dd}/${mm}/${d.getUTCFullYear()}`
 }
 
 export function formatDateTime(date) {
-  if (!date) return ''
-  const d = new Date(date)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString('es-GT', DATETIME_OPTIONS)
+  return formatDate(date)
 }
 
 export function formatDocumentId(value) {

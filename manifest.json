@@ -1,7 +1,8 @@
 {
-  "name": "Open RootERP",
-  "short_name": "Open RootERP",
-  "description": "Open RootERP — Sistema ERP 100% offline, open source, libre y gratuito",
+  "name": "Open Root Gym",
+  "short_name": "Open Root Gym",
+  "version": "1.1.0",
+  "description": "Open Root Gym — Sistema de gestión para gimnasios, 100% offline, open source, libre y gratuito",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",

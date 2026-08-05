@@ -1,28 +1,34 @@
 const SEED_PRODUCTS = [
-  { code: 'PROD-001', name: 'Laptop HP ProBook', category: 'Electrónica', purchasePrice: 450, salePrice: 650, stock: 15, stockMin: 5 },
-  { code: 'PROD-002', name: 'Monitor Samsung 24"', category: 'Electrónica', purchasePrice: 120, salePrice: 180, stock: 25, stockMin: 10 },
-  { code: 'PROD-003', name: 'Teclado Mecánico RGB', category: 'Periféricos', purchasePrice: 35, salePrice: 55, stock: 50, stockMin: 15 },
-  { code: 'PROD-004', name: 'Mouse Inalámbrico Logitech', category: 'Periféricos', purchasePrice: 20, salePrice: 35, stock: 40, stockMin: 10 },
-  { code: 'PROD-005', name: 'Webcam HD 1080p', category: 'Periféricos', purchasePrice: 25, salePrice: 45, stock: 30, stockMin: 10 },
-  { code: 'PROD-006', name: 'Audífonos Bluetooth Sony', category: 'Audio', purchasePrice: 50, salePrice: 85, stock: 20, stockMin: 5 },
-  { code: 'PROD-007', name: 'Cable HDMI 2m', category: 'Accesorios', purchasePrice: 5, salePrice: 12, stock: 100, stockMin: 30 },
-  { code: 'PROD-008', name: 'Hub USB 4 Puertos', category: 'Accesorios', purchasePrice: 10, salePrice: 18, stock: 60, stockMin: 20 },
-  { code: 'PROD-009', name: 'Silla Ergonómica', category: 'Muebles', purchasePrice: 150, salePrice: 250, stock: 8, stockMin: 3 },
-  { code: 'PROD-010', name: 'Escritorio Eléctrico', category: 'Muebles', purchasePrice: 200, salePrice: 350, stock: 5, stockMin: 2 }
+  { code: 'SUP-001', name: 'Proteína Whey 1kg', category: 'Suplementos', purchasePrice: 180, salePrice: 250, stock: 15, stockMin: 5 },
+  { code: 'SUP-002', name: 'Creatina Monohidratada 300g', category: 'Suplementos', purchasePrice: 120, salePrice: 170, stock: 20, stockMin: 6 },
+  { code: 'SUP-003', name: 'BCAAs 240 cápsulas', category: 'Suplementos', purchasePrice: 90, salePrice: 140, stock: 18, stockMin: 5 },
+  { code: 'BEB-001', name: 'Bebida Isotónica 500ml', category: 'Bebidas', purchasePrice: 6, salePrice: 12, stock: 80, stockMin: 20 },
+  { code: 'BEB-002', name: 'Bebida Energética 355ml', category: 'Bebidas', purchasePrice: 8, salePrice: 15, stock: 60, stockMin: 15 },
+  { code: 'ROP-001', name: 'Camiseta Deportiva', category: 'Ropa Deportiva', purchasePrice: 40, salePrice: 75, stock: 25, stockMin: 8 },
+  { code: 'ROP-002', name: 'Pantalón Deportivo', category: 'Ropa Deportiva', purchasePrice: 60, salePrice: 110, stock: 15, stockMin: 5 },
+  { code: 'ACC-001', name: 'Guantes de Entrenamiento', category: 'Accesorios', purchasePrice: 45, salePrice: 80, stock: 22, stockMin: 6 },
+  { code: 'ACC-002', name: 'Toalla Deportiva', category: 'Accesorios', purchasePrice: 20, salePrice: 40, stock: 30, stockMin: 10 },
+  { code: 'SNK-001', name: 'Barra de Proteína', category: 'Snacks', purchasePrice: 5, salePrice: 10, stock: 90, stockMin: 25 }
 ]
 
-const SEED_CUSTOMERS = [
-  { documentId: 'C001', name: 'Juan Pérez', email: 'juan@email.com', phone: '5555-0101', address: 'Av. Principal 123' },
-  { documentId: 'C002', name: 'María García', email: 'maria@email.com', phone: '5555-0102', address: 'Calle Secundaria 456' },
-  { documentId: 'C003', name: 'Carlos López', email: 'carlos@email.com', phone: '5555-0103', address: 'Blvd. Central 789' },
-  { documentId: 'C004', name: 'Ana Martínez', email: 'ana@email.com', phone: '5555-0104', address: 'Plaza Mayor 321' },
-  { documentId: 'C005', name: 'Pedro Ramírez', email: 'pedro@email.com', phone: '5555-0105', address: 'Calle Los Olivos 654' }
+const SEED_MEMBERS = [
+  { documentId: 'M001', name: 'Juan Pérez', email: 'juan@email.com', phone: '5555-0101', address: 'Av. Principal 123', photo: '', physicalGoal: '', assignedTrainerId: '', joinDate: new Date().toISOString(), membershipId: '', status: 'active' },
+  { documentId: 'M002', name: 'María García', email: 'maria@email.com', phone: '5555-0102', address: 'Calle Secundaria 456', photo: '', physicalGoal: '', assignedTrainerId: '', joinDate: new Date().toISOString(), membershipId: '', status: 'active' },
+  { documentId: 'M003', name: 'Carlos López', email: 'carlos@email.com', phone: '5555-0103', address: 'Blvd. Central 789', photo: '', physicalGoal: '', assignedTrainerId: '', joinDate: new Date().toISOString(), membershipId: '', status: 'active' },
+  { documentId: 'M004', name: 'Ana Martínez', email: 'ana@email.com', phone: '5555-0104', address: 'Plaza Mayor 321', photo: '', physicalGoal: '', assignedTrainerId: '', joinDate: new Date().toISOString(), membershipId: '', status: 'active' },
+  { documentId: 'M005', name: 'Pedro Ramírez', email: 'pedro@email.com', phone: '5555-0105', address: 'Calle Los Olivos 654', photo: '', physicalGoal: '', assignedTrainerId: '', joinDate: new Date().toISOString(), membershipId: '', status: 'active' }
 ]
 
 const SEED_SUPPLIERS = [
-  { documentId: 'PROV-001', name: 'Distribuidora Tech S.A.', email: 'ventas@distitech.com', phone: '5555-1001', address: '8a. Calle 10-20, Zona 12' },
-  { documentId: 'PROV-002', name: 'Importaciones Globales, S.A.', email: 'info@importglobal.com', phone: '5555-1002', address: '1a. Avenida 5-30, Zona 10' },
-  { documentId: 'PROV-003', name: 'Suministros Office S.A.', email: 'pedidos@suministros.com', phone: '5555-1003', address: '7a. Avenida 15-45, Zona 13' }
+  { documentId: 'PROV-001', name: 'Distribuidora Deportiva S.A.', email: 'ventas@deporsup.com', phone: '5555-1001', address: '8a. Calle 10-20, Zona 12' },
+  { documentId: 'PROV-002', name: 'Importaciones Fitness, S.A.', email: 'info@fitimport.com', phone: '5555-1002', address: '1a. Avenida 5-30, Zona 10' },
+  { documentId: 'PROV-003', name: 'Nutrición Total S.A.', email: 'pedidos@nutritotal.com', phone: '5555-1003', address: '7a. Avenida 15-45, Zona 13' }
+]
+
+const SEED_PLANS = [
+  { name: 'Básico Mensual', description: 'Acceso al área de pesas y cardio.', durationDays: 30, price: 250, active: true },
+  { name: 'Premium Trimestral', description: 'Acceso completo + clases grupales.', durationDays: 90, price: 650, active: true },
+  { name: 'Anual', description: 'Acceso completo + clases + nutrición.', durationDays: 365, price: 2200, active: true }
 ]
 
 const SEED_ACCOUNTS = [
@@ -30,17 +36,17 @@ const SEED_ACCOUNTS = [
   { code: '1201', name: 'Inventario', type: 'asset', description: 'Inventario de productos para la venta' },
   { code: '2101', name: 'IVA por Pagar', type: 'liability', description: 'Impuesto al Valor Agregado por pagar' },
   { code: '2102', name: 'Proveedores', type: 'liability', description: 'Obligaciones con proveedores' },
-  { code: '3101', name: 'Capital Social', type: 'equity', description: 'Aportes de capital de los accionistas' },
-  { code: '4101', name: 'Ventas', type: 'income', description: 'Ingresos por ventas de productos' },
+  { code: '3101', name: 'Capital Social', type: 'equity', description: 'Aportes de capital de los socios' },
+  { code: '4101', name: 'Ventas', type: 'income', description: 'Ingresos por ventas de productos y membresías' },
   { code: '5101', name: 'Costo de Ventas', type: 'expense', description: 'Costo directo de productos vendidos' }
 ]
 
 const SEED_SETTINGS = [
-  { key: 'business_name', value: 'Mi Empresa S.A.' },
+  { key: 'business_name', value: 'Gimnasio Open Root Gym' },
   { key: 'business_document', value: '12345678-9' },
   { key: 'business_address', value: '6a. Avenida 1-23, Zona 4' },
   { key: 'business_phone', value: '5555-0000' },
-  { key: 'business_email', value: 'info@miempresa.com' },
+  { key: 'business_email', value: 'info@openrootgym.com' },
   { key: 'tax_rate', value: '0.12' },
   { key: 'currency_symbol', value: 'Q ' }
 ]
@@ -58,27 +64,27 @@ export async function seedData(db) {
   if (productCount > 0) {
     const saleCount = await db.sales.count()
     if (saleCount === 0) {
-      const allProducts = await db.products.toArray()
-      const allCustomers = await db.customers.toArray()
+      const allMembers = await db.members.toArray()
       const allSuppliers = await db.suppliers.toArray()
       const pIds = allProducts.map(p => p.id)
-      const cIds = allCustomers.map(c => c.id)
+      const mIds = allMembers.map(m => m.id)
       const sIds = allSuppliers.map(s => s.id)
-      await seedTransactions(db, pIds, cIds, sIds)
+      await seedTransactions(db, pIds, mIds, sIds)
     }
     return
   }
 
-  await db.transaction('rw', db.products, db.customers, db.suppliers, db.settings,
+  await db.transaction('rw', db.products, db.members, db.suppliers, db.settings,
     db.inventoryMovements, db.accounts, db.sales, db.saleItems, db.purchases,
-    db.purchaseItems, db.accountingEntries, async () => {
+    db.purchaseItems, db.accountingEntries, db.membershipPlans, db.memberships,
+    db.membershipHistory, db.membershipPayments, db.attendance, db.trainers,
+    db.gymAssets, db.maintenance, db.physicalEvolutions, async () => {
 
     const stockTracker = {}
     const productIds = []
     for (const product of SEED_PRODUCTS) {
       const id = await db.products.add({ ...product, active: true })
       productIds.push(id)
-      stockTracker[id] = 0
       const stockBefore = 0
       const stockAfter = product.stock
       stockTracker[id] = stockAfter
@@ -95,16 +101,64 @@ export async function seedData(db) {
       })
     }
 
-    const customerIds = []
-    for (const customer of SEED_CUSTOMERS) {
-      const id = await db.customers.add({ ...customer, active: true })
-      customerIds.push(id)
+    const memberIds = []
+    for (const member of SEED_MEMBERS) {
+      const id = await db.members.add({ ...member, active: true })
+      memberIds.push(id)
     }
 
     const supplierIds = []
     for (const supplier of SEED_SUPPLIERS) {
       const id = await db.suppliers.add(supplier)
       supplierIds.push(id)
+    }
+
+    for (const plan of SEED_PLANS) {
+      await db.membershipPlans.add(plan)
+    }
+
+    const planIds = await db.membershipPlans.toIndexes ? null : (await db.membershipPlans.toArray()).map(p => p.id)
+    const planMap = {}
+    {
+      const allPlans = await db.membershipPlans.toArray()
+      for (const p of allPlans) planMap[p.name] = p
+    }
+
+    const SEED_MEMBERSHIPS = [
+      { memberId: memberIds[0], planId: planMap['Básico Mensual']?.id, startDate: makeDate(25), endDate: makeDate(-5), status: 'active', price: 250, notes: '' },
+      { memberId: memberIds[1], planId: planMap['Premium Trimestral']?.id, startDate: makeDate(60), endDate: makeDate(-30), status: 'active', price: 650, notes: '' },
+      { memberId: memberIds[2], planId: planMap['Anual']?.id, startDate: makeDate(400), endDate: makeDate(35), status: 'expired', price: 2200, notes: '' },
+      { memberId: memberIds[3], planId: planMap['Básico Mensual']?.id, startDate: makeDate(10), endDate: makeDate(-20), status: 'frozen', price: 250, notes: '' },
+      { memberId: memberIds[4], planId: planMap['Básico Mensual']?.id, startDate: makeDate(5), endDate: makeDate(-25), status: 'active', price: 250, notes: '' }
+    ]
+
+    for (const membership of SEED_MEMBERSHIPS) {
+      const { id } = await db.memberships.add(membership)
+      await db.membershipHistory.add({
+        membershipId: id,
+        memberId: membership.memberId,
+        type: 'initial',
+        date: membership.startDate,
+        notes: `Membresía ${membership.status} creada`
+      })
+    }
+
+    const membershipIds = []
+    for (const membership of SEED_MEMBERSHIPS) {
+      const found = await db.memberships.where('memberId').equals(membership.memberId).first()
+      if (found) membershipIds.push(found)
+    }
+
+    const allMemberships = await db.memberships.toArray()
+    for (const ms of allMemberships) {
+      await db.membershipPayments.add({
+        membershipId: ms.id,
+        memberId: ms.memberId,
+        amount: ms.price,
+        method: 'cash',
+        date: ms.startDate,
+        notes: 'Pago inicial de membresía'
+      })
     }
 
     for (const setting of SEED_SETTINGS) {
@@ -121,11 +175,11 @@ export async function seedData(db) {
       accounts[a.code] = acc
     }
 
-    await seedTransactions(db, productIds, customerIds, supplierIds, accounts, stockTracker)
+    await seedTransactions(db, productIds, memberIds, supplierIds, accounts, stockTracker)
   })
 }
 
-async function seedTransactions(db, productIds, customerIds, supplierIds, accounts, stockTracker) {
+async function seedTransactions(db, productIds, memberIds, supplierIds, accounts, stockTracker) {
   if (!stockTracker) {
     stockTracker = {}
     const allProducts = await db.products.toArray()
@@ -146,35 +200,35 @@ async function seedTransactions(db, productIds, customerIds, supplierIds, accoun
     db.inventoryMovements, db.accountingEntries, async () => {
 
     const PRODUCT_COST = {
-      [productIds[0]]: 450,
+      [productIds[0]]: 180,
       [productIds[1]]: 120,
-      [productIds[2]]: 35,
-      [productIds[3]]: 20,
-      [productIds[4]]: 25,
-      [productIds[5]]: 50,
-      [productIds[6]]: 5,
-      [productIds[7]]: 10,
-      [productIds[8]]: 150,
-      [productIds[9]]: 200
+      [productIds[2]]: 90,
+      [productIds[3]]: 6,
+      [productIds[4]]: 8,
+      [productIds[5]]: 40,
+      [productIds[6]]: 60,
+      [productIds[7]]: 45,
+      [productIds[8]]: 20,
+      [productIds[9]]: 5
     }
 
     const saleData = [
       {
         date: makeDate(1),
-        customerId: customerIds[0],
+        customerId: memberIds[0],
         customerName: 'Juan Pérez',
         items: [
-          { productId: productIds[0], productCode: 'PROD-001', productName: 'Laptop HP ProBook', quantity: 2, unitPrice: 650 },
-          { productId: productIds[2], productCode: 'PROD-003', productName: 'Teclado Mecánico RGB', quantity: 3, unitPrice: 55 }
+          { productId: productIds[0], productCode: 'SUP-001', productName: 'Proteína Whey 1kg', quantity: 2, unitPrice: 250 },
+          { productId: productIds[1], productCode: 'SUP-002', productName: 'Creatina Monohidratada 300g', quantity: 1, unitPrice: 170 }
         ]
       },
       {
         date: makeDate(3),
-        customerId: customerIds[1],
+        customerId: memberIds[1],
         customerName: 'María García',
         items: [
-          { productId: productIds[1], productCode: 'PROD-002', productName: 'Monitor Samsung 24"', quantity: 1, unitPrice: 180 },
-          { productId: productIds[3], productCode: 'PROD-004', productName: 'Mouse Inalámbrico Logitech', quantity: 1, unitPrice: 35 }
+          { productId: productIds[5], productCode: 'ROP-001', productName: 'Camiseta Deportiva', quantity: 1, unitPrice: 75 },
+          { productId: productIds[7], productCode: 'ACC-001', productName: 'Guantes de Entrenamiento', quantity: 1, unitPrice: 80 }
         ]
       }
     ]
@@ -239,19 +293,19 @@ async function seedTransactions(db, productIds, customerIds, supplierIds, accoun
       {
         date: makeDate(5),
         supplierId: supplierIds[0],
-        supplierName: 'Distribuidora Tech S.A.',
+        supplierName: 'Distribuidora Deportiva S.A.',
         items: [
-          { productId: productIds[0], productCode: 'PROD-001', productName: 'Laptop HP ProBook', quantity: 5, unitPrice: 450 },
-          { productId: productIds[1], productCode: 'PROD-002', productName: 'Monitor Samsung 24"', quantity: 10, unitPrice: 120 }
+          { productId: productIds[0], productCode: 'SUP-001', productName: 'Proteína Whey 1kg', quantity: 10, unitPrice: 180 },
+          { productId: productIds[1], productCode: 'SUP-002', productName: 'Creatina Monohidratada 300g', quantity: 15, unitPrice: 120 }
         ]
       },
       {
         date: makeDate(7),
-        supplierId: supplierIds[1],
-        supplierName: 'Importaciones Globales, S.A.',
+        supplierId: supplierIds[2],
+        supplierName: 'Nutrición Total S.A.',
         items: [
-          { productId: productIds[2], productCode: 'PROD-003', productName: 'Teclado Mecánico RGB', quantity: 20, unitPrice: 35 },
-          { productId: productIds[3], productCode: 'PROD-004', productName: 'Mouse Inalámbrico Logitech', quantity: 30, unitPrice: 20 }
+          { productId: productIds[2], productCode: 'SUP-003', productName: 'BCAAs 240 cápsulas', quantity: 12, unitPrice: 90 },
+          { productId: productIds[9], productCode: 'SNK-001', productName: 'Barra de Proteína', quantity: 40, unitPrice: 5 }
         ]
       }
     ]

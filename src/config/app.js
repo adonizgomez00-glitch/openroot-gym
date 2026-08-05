@@ -25,7 +25,7 @@
  */
 
 export const APP_CONFIG = Object.freeze({
-  APP_NAME: 'Open RootERP',
+  APP_NAME: 'Open Root Gym',
   VERSION: '1.0.0',
   ITEMS_PER_PAGE: 20,
   DEBOUNCE_MS: 300,

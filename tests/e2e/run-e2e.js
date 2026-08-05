@@ -177,28 +177,28 @@ async function runAll() {
       }
     }))()
 
-    await (test('10 — Create customer', async () => {
-      await wait(500)
-      await openModule('customers')
-      await wait(1000)
-      const custBtn = await getPage().waitForSelector('button:has-text("+ Nuevo Cliente")', { timeout: 5000 })
-      assert(custBtn !== null, 'Create customer button found')
-      await custBtn.click()
-      await wait(500)
-      const nameField = await getPage().waitForSelector('#field-name', { timeout: 5000 })
-      assert(nameField !== null, 'Customer name field exists in modal')
-      await fill('#field-name', 'Juan Pérez')
-      await fill('#field-documentId', 'DNI-12345678')
-      await fill('#field-email', 'juan@example.com')
-      await fill('#field-phone', '999888777')
-      await submitForm()
-      await waitForToastContaining('creado')
-    }))()
+await (test('10 — Create member', async () => {
+       await wait(500)
+       await openModule('members')
+       await wait(1000)
+       const memBtn = await getPage().waitForSelector('button:has-text("+ Nuevo Miembro")', { timeout: 5000 })
+       assert(memBtn !== null, 'Create member button found')
+       await memBtn.click()
+       await wait(500)
+       const nameField = await getPage().waitForSelector('#field-name', { timeout: 5000 })
+       assert(nameField !== null, 'Member name field exists in modal')
+       await fill('#field-name', 'Juan Pérez')
+       await fill('#field-documentId', 'DNI-12345678')
+       await fill('#field-email', 'juan@example.com')
+       await fill('#field-phone', '999888777')
+       await submitForm()
+       await waitForToastContaining('creado')
+     }))()
 
     await (test('11 — Duplicate document validation', async () => {
       await wait(500)
-      const custBtn2 = await getPage().waitForSelector('button:has-text("+ Nuevo Cliente")', { timeout: 5000 })
-      assert(custBtn2 !== null, 'Create customer button found for duplicate test')
+      const custBtn2 = await getPage().waitForSelector('button:has-text("+ Nuevo Miembro")', { timeout: 5000 })
+      assert(custBtn2 !== null, 'Create member button found for duplicate test')
       await custBtn2.click()
       await wait(500)
       await fill('#field-name', 'Juan Pérez Dup')
@@ -227,7 +227,7 @@ async function runAll() {
       }, 'creado')
     }))()
 
-    await (test('13 — Create sale with customer', async () => {
+    await (test('13 — Create sale with member', async () => {
       await openModule('sales')
       await wait(300)
       await click('button:has-text("+ Nueva Venta")')
@@ -249,7 +249,7 @@ async function runAll() {
       await waitForToastContaining('registrada')
     }))()
 
-    await (test('14 — Create sale without customer', async () => {
+    await (test('14 — Create sale without member', async () => {
       await click('button:has-text("+ Nueva Venta")')
       await waitFor('.sale-form')
       await wait(500)
@@ -507,13 +507,49 @@ async function runAll() {
       await waitForToastContaining('eliminado')
     }))()
 
-    await (test('37 — Logout', async () => {
+    await (test('37 — Create membership plan', async () => {
+      await wait(500)
+      await openModule('membershipPlans')
+      await wait(1000)
+      const planBtn = await getPage().waitForSelector('button:has-text("+ Nuevo Plan")', { timeout: 5000 })
+      assert(planBtn !== null, 'Create plan button found')
+      await planBtn.click()
+      await wait(500)
+      const nameField = await getPage().waitForSelector('#field-name', { timeout: 5000 })
+      assert(nameField !== null, 'Plan name field exists in modal')
+      await fill('#field-name', 'Plan Test E2E')
+      await fill('#field-description', 'Plan para testing e2e')
+      await fill('#field-durationDays', '30')
+      await fill('#field-price', '150')
+      await submitForm()
+      await waitForToastContaining('creado')
+    }))()
+
+    await (test('38 — Create membership', async () => {
+      await wait(500)
+      await openModule('memberships')
+      await wait(1000)
+      const memBtn = await getPage().waitForSelector('button:has-text("+ Nueva Membresía")', { timeout: 5000 })
+      assert(memBtn !== null, 'Create membership button found')
+      await memBtn.click()
+      await wait(500)
+      await fill('#field-memberId', '1')
+      await fill('#field-planId', '1')
+      await fill('#field-startDate', new Date().toISOString().split('T')[0])
+      await fill('#field-endDate', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      await fill('#field-status', 'active')
+      await fill('#field-price', '150')
+      await submitForm()
+      await waitForToastContaining('creado')
+    }))()
+
+    await (test('39 — Logout', async () => {
       await click('button:has-text("Cerrar Sesión")')
       await waitFor('#login-username')
       assert(true, 'Redirected to login after logout')
     }))()
 
-    await (test('38 — Re-login', async () => {
+    await (test('40 — Re-login', async () => {
       await fill('#login-username', 'admin')
       await fill('#login-password', 'admin1234')
       await click('button:has-text("Ingresar")')

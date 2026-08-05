@@ -1,4 +1,10 @@
 node_modules/
 
+# Puerto persistente del servidor local (específico de cada máquina)
+.openroot-port
+
 # Documentos confidenciales — no subir a GitHub
 GUIA_ENTREVISTA_BANRURAL.md
+
+# Artefactos de test (capturas de pantalla / videos de Playwright)
+videos/

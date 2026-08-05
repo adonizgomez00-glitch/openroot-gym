@@ -105,7 +105,7 @@ async function runAll() {
 
     // ── P1: Rapid module switching ──
     await (test('ST01 — Rapid module switching 50x (memory stress)', async () => {
-      const modules = ['dashboard', 'products', 'customers', 'suppliers', 'sales', 'purchases', 'inventory', 'reports', 'settings', 'exports', 'imports']
+      const modules = ['dashboard', 'products', 'members', 'suppliers', 'sales', 'purchases', 'inventory', 'reports', 'settings', 'exports', 'imports']
       const startTime = Date.now()
       let errors = 0
       for (let i = 0; i < 50; i++) {
@@ -212,7 +212,7 @@ async function runAll() {
 
     // ── P7: Navigate modules under stress (from products) ──
     await (test('ST06 — Navigate all modules rapidly (navigation stress)', async () => {
-      const modules = ['dashboard', 'products', 'customers', 'suppliers', 'sales', 'purchases', 'inventory', 'reports', 'settings', 'exports', 'imports']
+      const modules = ['dashboard', 'products', 'members', 'suppliers', 'sales', 'purchases', 'inventory', 'reports', 'settings', 'exports', 'imports']
       let errors = 0
       for (let i = 0; i < 3; i++) {
         for (const mod of modules) {

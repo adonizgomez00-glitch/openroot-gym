@@ -1,8 +1,8 @@
 {
-  "name": "open-rooterp",
-  "version": "1.0.0",
+  "name": "open-root-gym",
+  "version": "1.1.0",
   "type": "module",
-  "description": "Open RootERP — Sistema ERP 100% offline, open source, libre y gratuito",
+  "description": "Open Root Gym — Sistema de gestión para gimnasios, 100% offline, open source, libre y gratuito",
   "license": "GPL-2.0-or-later",
   "author": "Adónis Adonai Gómez Martínez <adonizgomez00@gmail.com>",
   "scripts": {

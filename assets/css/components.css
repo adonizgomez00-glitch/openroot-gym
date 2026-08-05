@@ -295,6 +295,55 @@
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
 
+.form__combobox {
+  position: relative;
+}
+
+.form__combobox-input {
+  width: 100%;
+}
+
+.form__combobox-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.form__combobox-item,
+.form__combobox-empty {
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--radius);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.form__combobox-item--active,
+.form__combobox-item:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.form__combobox-empty {
+  cursor: default;
+  color: var(--color-muted);
+}
+
+.form__combobox.form__input--error .form__combobox-input {
+  border-color: var(--color-input-error);
+}
+
 .form__textarea {
   resize: vertical;
   min-height: 80px;
@@ -400,6 +449,7 @@
 
 .sidebar__brand-icon {
   font-size: 1.5rem;
+  color: #fff;
 }
 
 .sidebar__brand-name {
@@ -1422,7 +1472,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #1e40af 100%);
+  background: #e8853a;
   padding: 1rem;
   z-index: 100;
 }
@@ -1584,12 +1634,12 @@
 
 .pagination__btn:hover:not(:disabled) {
   background: var(--color-hover, #f3f4f6);
-  border-color: var(--color-primary, #2563eb);
+  border-color: var(--color-primary, #ea580c);
 }
 
 .pagination__btn--active {
-  background: var(--color-primary, #2563eb);
-  border-color: var(--color-primary, #2563eb);
+  background: var(--color-primary, #ea580c);
+  border-color: var(--color-primary, #ea580c);
   color: #fff;
   font-weight: 600;
 }

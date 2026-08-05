@@ -1,44 +1,36 @@
-# Session — Open RootERP v1.0.0
+# Session — OpenRoot Gym v1.0.0
 
 ## Fecha
-Julio 28, 2026 — Smoke test visible + grabación de video
+Agosto 4, 2026 — F12: Documentación completa y cierre
 
 ## Estado general
-**v1.0.0** — Primer release. 45 suites unit/integration, 76 escenarios E2E adversariales, 5 fases QA completadas.
+**v1.0.0** — Primer release. 59 suites unit/integration (440+ tests), 38 tests E2E, 76 escenarios QA adversariales, 5 fases QA completadas. 0 fallos en todas las suites.
 
-## Cambios en esta sesión
+## Cambios en esta sesión (F6-F12)
 
 | # | Tarea | Archivos |
 |---|-------|----------|
-| 1 | **Fix InventoryService transacción Dexie** — callback `()=>` → `async ()=>` para mantener zona | `src/services/InventoryService.js` |
-| 2 | **Mecanismo recuperación tests** — `recoverPageState()` limpia modales/overlays antes y después de cada test | `tests/e2e/run-e2e.js` |
-| 3 | **Test 20 — Stock adjustment** — selección de producto + toast fix | `tests/e2e/run-e2e.js` |
-| 4 | **Tests 31-32 — Import CSV/JSON** — subida real de archivos vía `setInputFiles` | `tests/e2e/run-e2e.js` |
-| 5 | **Tests 33-36 — Users CRUD** — ver tabla, crear, editar, eliminar usuario | `tests/e2e/run-e2e.js` |
-| 6 | **Cobertura completa** — de 19/32 a 38/38 tests pasando | `tests/e2e/run-e2e.js` |
-| 7 | **Documentación** — TODO, ROADMAP, PROJECT_STATE, ARCHITECTURE, SESSION, NEXT_CHAT actualizados | varios .md |
-| 8 | **Bump versión** 1.3.0 → 1.4.0 | `package.json` |
-| 9 | **Dark mode — texto ilegible** — Faltaban `--color-muted`, `--color-bg-secondary`, y `color` en `body`. Se agregaron variables y se fijó `color: var(--color-text)` en body | `assets/css/variables.css` |
-| 10 | **Dark mode — badges/estados** — `.status--*`, `.report-stat--*`, `.import-results__badge--*`, `.acct-total-*`, `.btn--ghost-danger` ahora usan fondo sólido + texto blanco en modo oscuro | `assets/css/variables.css` |
-| 11 | **Smoke test visible con video** — Nuevo script `smoke-visible.js` con navegador headed, slowMo 200ms, grabación de video WebM. Corrige error: `field-documentId` es readonly (auto-generado), no se debe llenar | `tests/e2e/smoke-visible.js` |
-| 12 | **Documentación y videos** — SESSION, E2E_TESTS, QA_RESULTS, README actualizados. Videos de smoke test subidos a GitHub | varios .md, `videos/` |
-| 13 | **Gitignore: GUIA_ENTREVISTA_BANRURAL.md** — Archivo confidencial agregado a `.gitignore` para evitar subida accidental a GitHub | `.gitignore` |
+| 1 | **F6 — Entrenadores** | `TrainerModel/Repo/Service/Controller/View.js`, plugins, app.js, exports, sw.js, tests |
+| 2 | **F7 — Evolución física** | `PhysicalEvolutionModel/Repo/Service/Controller/View.js`, plugins, app.js, exports, sw.js, tests |
+| 3 | **F8 — Activos del gimnasio** | `GymAssetModel/Repo/Service/Controller/View.js`, plugins, app.js, exports, sw.js, tests |
+| 4 | **F9 — Mantenimiento** | `MaintenanceModel/Repo/Service/Controller/View.js`, plugins, app.js, exports, sw.js, tests |
+| 5 | **F10 — Reportes extendidos** | `ReportService/Controller/View` + 3 sub-views (`ReportTrainersView`, `ReportGymAssetsView`, `ReportMaintenanceView`), tests |
+| 6 | **F11 — Export/Import extendidos** | `ExportView/ImportView` dropdowns, `ImportService` auto-detect patterns, `ExportService/ImportService` ya tenían los métodos |
+| 7 | **F12 — Docs + cierre** | ROADMAP, ARCHITECTURE, PROJECT_STATE, NEXT_CHAT, README, Context, QA_TESTING_PLAN actualizados |
 
 ## Tests
 
 ```bash
-npm test         # 45 suites · 410+ tests · 0 fallos
+npm test         # 59 suites · 440+ tests · 0 fallos
 npm run test:e2e # 38 tests E2E · 0 fallos
 ```
 
 ## Release readiness
 
-✅ **Todo implementado** — 14 módulos funcionales, RBAC, contabilidad, import/export, gráficos, PWA
+✅ **Todo implementado** — 27 módulos funcionales, RBAC, contabilidad, import/export, gráficos, PWA, sistema de gimnasio completo
 ✅ **Tests** — Unitarios, integración y E2E, 0 fallos
-✅ **Documentación** — ARCHITECTURE, ROADMAP, TODO, PROJECT_STATE, Context, NEXT_CHAT
+✅ **Documentación** — ARCHITECTURE, ROADMAP, PROJECT_STATE, NEXT_CHAT, README, Context, QA_TESTING_PLAN
 ✅ **PWA** — manifest.json, sw.js, setup.sh/setup.bat
-⚠️ **Seguridad client-side**: RBAC en navegador (aceptable para ERP offline)
-⚠️ **Sin sincronización futura**: No hay backend (fuera de alcance)
 
 ## Comandos
 

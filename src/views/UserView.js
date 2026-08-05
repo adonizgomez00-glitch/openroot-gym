@@ -4,6 +4,7 @@ import { Form } from '../components/Form.js'
 import { ConfirmDialog } from '../components/ConfirmDialog.js'
 import { Toast } from '../components/Toast.js'
 import { Loader } from '../components/Loader.js'
+import { formatDate } from '../utils/formatters.js'
 
 export class UserView {
   constructor() {
@@ -61,7 +62,7 @@ export class UserView {
         },
         {
           key: 'lastLogin', label: 'Último Acceso', width: '160px',
-          render: (v) => v ? new Date(v).toLocaleString('es-GT') : '—'
+          render: (v) => v ? formatDate(v) : '—'
         },
         {
           key: 'id', label: 'Acciones', width: '160px', sortable: false,

@@ -4,7 +4,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog.js'
 import { Toast } from '../components/Toast.js'
 import { Loader } from '../components/Loader.js'
 import { SaleFormView } from './SaleFormView.js'
-import { formatCurrency, formatDateTime } from '../utils/formatters.js'
+import { formatCurrency, formatDate } from '../utils/formatters.js'
 
 export class SaleView {
   constructor() {
@@ -57,7 +57,7 @@ export class SaleView {
     this._salesTable = new Table({
       columns: [
         { key: 'id', label: 'N°', width: '60px' },
-        { key: 'date', label: 'Fecha', width: '160px', render: (v) => formatDateTime(v) },
+        { key: 'date', label: 'Fecha', width: '160px', render: (v) => formatDate(v) },
         { key: 'customerName', label: 'Cliente' },
         { key: 'total', label: 'Total', width: '120px', render: (v) => formatCurrency(v) },
         {
@@ -147,7 +147,7 @@ export class SaleView {
       return row
     }
     info.appendChild(addRow('Venta N°:', String(sale.id)))
-    info.appendChild(addRow('Fecha:', formatDateTime(sale.date)))
+    info.appendChild(addRow('Fecha:', formatDate(sale.date)))
     info.appendChild(addRow('Cliente:', sale.customerName || 'Cliente ocasional'))
     const statusRow = document.createElement('div')
     statusRow.className = 'sale-detail__row'

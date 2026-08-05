@@ -64,10 +64,10 @@ export class SystemService {
       { name: 'products.create', description: 'Crear productos' },
       { name: 'products.edit', description: 'Editar productos' },
       { name: 'products.delete', description: 'Eliminar productos' },
-      { name: 'customers.view', description: 'Ver clientes' },
-      { name: 'customers.create', description: 'Crear clientes' },
-      { name: 'customers.edit', description: 'Editar clientes' },
-      { name: 'customers.delete', description: 'Eliminar clientes' },
+      { name: 'members.view', description: 'Ver miembros' },
+      { name: 'members.create', description: 'Crear miembros' },
+      { name: 'members.edit', description: 'Editar miembros' },
+      { name: 'members.delete', description: 'Eliminar miembros' },
       { name: 'suppliers.view', description: 'Ver proveedores' },
       { name: 'suppliers.create', description: 'Crear proveedores' },
       { name: 'suppliers.edit', description: 'Editar proveedores' },
@@ -96,7 +96,32 @@ export class SystemService {
       { name: 'users.delete', description: 'Eliminar usuarios' },
       { name: 'accounting.view', description: 'Ver contabilidad' },
       { name: 'accounting.create', description: 'Crear asientos contables' },
-      { name: 'accounting.edit', description: 'Editar plan de cuentas' }
+      { name: 'accounting.edit', description: 'Editar plan de cuentas' },
+      { name: 'memberships.view', description: 'Ver membresías' },
+      { name: 'memberships.create', description: 'Crear membresías' },
+      { name: 'memberships.edit', description: 'Editar membresías' },
+      { name: 'memberships.delete', description: 'Eliminar membresías' },
+      { name: 'memberships.payments.create', description: 'Registrar pagos de membresías' },
+      { name: 'attendance.view', description: 'Ver asistencias' },
+      { name: 'attendance.create', description: 'Registrar asistencias' },
+      { name: 'attendance.delete', description: 'Eliminar asistencias' },
+      { name: 'trainers.view', description: 'Ver entrenadores' },
+      { name: 'trainers.create', description: 'Crear entrenadores' },
+      { name: 'trainers.edit', description: 'Editar entrenadores' },
+      { name: 'trainers.delete', description: 'Eliminar entrenadores' },
+      { name: 'evolution.view', description: 'Ver evolución física' },
+      { name: 'evolution.create', description: 'Registrar evolución física' },
+      { name: 'evolution.edit', description: 'Editar evolución física' },
+      { name: 'evolution.delete', description: 'Eliminar evolución física' },
+      { name: 'assets.view', description: 'Ver activos del gimnasio' },
+      { name: 'assets.create', description: 'Crear activos del gimnasio' },
+      { name: 'assets.edit', description: 'Editar activos del gimnasio' },
+      { name: 'assets.delete', description: 'Eliminar activos del gimnasio' },
+      { name: 'maintenance.view', description: 'Ver mantenimientos' },
+      { name: 'maintenance.create', description: 'Crear mantenimientos' },
+      { name: 'maintenance.edit', description: 'Editar mantenimientos' },
+      { name: 'maintenance.delete', description: 'Eliminar mantenimientos' },
+      { name: 'plugins.manage', description: 'Gestionar plugins' }
     ]
     const existing = await this._permissionRepo.findAll()
     const existingNames = new Set(existing.map(p => p.name))
@@ -115,7 +140,7 @@ export class SystemService {
 
     const usuarioPermissions = [
       'products.view', 'products.create', 'products.edit',
-      'customers.view', 'customers.create', 'customers.edit',
+      'members.view', 'members.create', 'members.edit',
       'suppliers.view', 'suppliers.create', 'suppliers.edit',
       'sales.view', 'sales.create',
       'purchases.view', 'purchases.create',
@@ -124,7 +149,13 @@ export class SystemService {
       'dashboard.view',
       'settings.view',
       'exports.view', 'exports.create',
-      'accounting.view'
+      'accounting.view',
+      'memberships.view',
+      'attendance.view', 'attendance.create',
+      'trainers.view',
+      'evolution.view',
+      'assets.view',
+      'maintenance.view'
     ]
 
     for (const permName of usuarioPermissions) {

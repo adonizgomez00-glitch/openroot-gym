@@ -72,17 +72,42 @@ export class DashboardView {
         color: kpis.lowStock > 0 ? 'red' : 'green'
       },
       {
-        label: 'Clientes',
-        value: String(kpis.totalCustomers),
-        icon: 'clientes',
+        label: 'Miembros',
+        value: String(kpis.totalMembers),
+        icon: 'miembros',
         color: 'indigo'
       },
-      {
-        label: 'Proveedores',
-        value: String(kpis.totalSuppliers),
-        icon: 'proveedores',
-        color: 'teal'
-      }
+       {
+         label: 'Proveedores',
+         value: String(kpis.totalSuppliers),
+         icon: 'proveedores',
+         color: 'teal'
+       },
+       {
+         label: 'Vencimientos Próximos',
+         value: String(kpis.membershipsExpiring || 0),
+         sub: 'últimos 7 días',
+         icon: 'membresias',
+         color: kpis.membershipsExpiring > 0 ? 'orange' : 'green'
+       },
+       {
+         label: 'Ingresos Membresías (día)',
+         value: formatCurrency(kpis.todayMembershipRevenue || 0),
+         icon: 'ingresos',
+         color: 'indigo'
+       },
+       {
+         label: 'Ingresos Membresías (mes)',
+         value: formatCurrency(kpis.monthMembershipRevenue || 0),
+         icon: 'ingresos',
+         color: 'blue'
+       },
+       {
+         label: 'Asistencias (hoy)',
+         value: String(kpis.attendanceToday || 0),
+         icon: 'asistencias',
+         color: 'orange'
+       }
     ]
 
     for (const card of cards) {

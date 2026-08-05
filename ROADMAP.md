@@ -100,6 +100,23 @@ ERP ligero, 100% offline, pensado para pequeños negocios que necesitan gestiona
 
 ---
 
+### Fase 7 — OpenRoot Gym (Sistema de Gimnasio)
+
+| # | Módulo | Descripción | Estado |
+|---|--------|-------------|--------|
+| 7.1 | Miembros | CRUD, documento único, búsqueda | ✅ |
+| 7.2 | Planes de Membresía | CRUD de planes con duración y precio | ✅ |
+| 7.3 | Membresías | CRUD, renovación, congelación, vencimientos | ✅ |
+| 7.4 | Asistencias | Registro manual, check-in por miembro/fecha | ✅ |
+| 7.5 | Entrenadores | CRUD, especialidad, documento único | ✅ |
+| 7.6 | Evolución física | Registro por miembro (peso, altura, grasa, músculo, fotos) | ✅ |
+| 7.7 | Activos del gimnasio | CRUD, código auto-generado, mantenimiento, estado | ✅ |
+| 7.8 | Mantenimiento | CRUD por activo, costos, fechas, estados | ✅ |
+| 7.9 | Reportes extendidos | Membresías, asistencia, entrenadores, activos, mantenimiento | ✅ |
+| 7.10 | Export/Import gym | Nuevas entidades en export/import + auto-detección | ✅ |
+
+---
+
 ## Entregas
 
 | Hito | Estado | Contenido |
@@ -150,4 +167,4 @@ ERP ligero, 100% offline, pensado para pequeños negocios que necesitan gestiona
 - Import CSV + JSON
 - Users CRUD (ver tabla, crear, editar, eliminar)
 
-**410+ unit/integration tests**: 45 suites, 0 fallos
+**440+ unit/integration tests**: 59 suites, 0 fallos

@@ -1,3 +1,5 @@
+import { Combobox } from './Combobox.js'
+
 export class Form {
   constructor({ fields = [], onSubmit = null, submitText = 'Guardar', cancelText = null, onCancel = null } = {}) {
     this._fields = fields
@@ -99,6 +101,15 @@ export class Form {
           input.appendChild(option)
         }
       }
+    } else if (type === 'combobox') {
+      const combobox = new Combobox({
+        options: field.options || [],
+        placeholder: field.placeholder || 'Buscar...'
+      })
+      input = combobox.render()
+      input._isCombobox = true
+      input.combobox = combobox
+      combobox.onChange(() => this._clearError(field.name))
     } else if (type === 'textarea') {
       input = document.createElement('textarea')
       input.className = 'form__textarea'
@@ -116,8 +127,8 @@ export class Form {
     }
 
     input.name = field.name
-    if (field.placeholder) input.placeholder = field.placeholder
-    if (field.value !== undefined) input.value = field.value
+    if (field.placeholder && !input._isCombobox) input.placeholder = field.placeholder
+    if (field.value !== undefined && !input._isCombobox) input.value = field.value
     if (field.required) input.required = true
     if (field.minlength) input.minLength = field.minlength
     if (field.maxlength) input.maxLength = field.maxlength
@@ -139,7 +150,10 @@ export class Form {
     const values = {}
     for (const [name, { input }] of this._inputs) {
       const field = this._fields.find(f => f.name === name)
-      if (field?.type === 'number') {
+      if (field?.type === 'combobox') {
+        const value = input.combobox ? input.combobox.getValue() : null
+        values[name] = (value === '' || value === null || value === undefined) ? null : Number(value)
+      } else if (field?.type === 'number') {
         values[name] = input.value === '' ? null : Number(input.value)
       } else {
         values[name] = input.value
@@ -150,15 +164,24 @@ export class Form {
 
   setValues(data) {
     for (const [name, { input }] of this._inputs) {
+      const field = this._fields.find(f => f.name === name)
       if (data[name] !== undefined) {
-        input.value = data[name]
+        if (field?.type === 'combobox' && input.combobox) {
+          input.combobox.setValueById(data[name])
+        } else {
+          input.value = data[name]
+        }
       }
     }
   }
 
   reset() {
     for (const [, { input, errorEl }] of this._inputs) {
-      input.value = ''
+      if (input.combobox) {
+        input.combobox.clear()
+      } else {
+        input.value = ''
+      }
       input.classList.remove('form__input--error', 'form__select--error', 'form__textarea--error')
       errorEl.style.display = 'none'
     }
@@ -169,13 +192,16 @@ export class Form {
     if (!entry) return true
 
     const { input, errorEl, field } = entry
-    const value = input.value.trim()
+    const value = input.combobox
+      ? (input.combobox.getValue() ?? '')
+      : input.value.trim()
 
     input.classList.remove('form__input--error', 'form__select--error', 'form__textarea--error')
     errorEl.style.display = 'none'
 
-    if (field.required && !value) {
-      this._showError(input, errorEl, 'Este campo es requerido')
+    if (field.required && (value === '' || value === null || value === undefined)) {
+      const message = input.combobox ? 'Seleccione un elemento de la lista' : 'Este campo es requerido'
+      this._showError(input, errorEl, message)
       return false
     }
 

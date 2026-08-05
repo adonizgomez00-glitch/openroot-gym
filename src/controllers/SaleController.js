@@ -1,11 +1,11 @@
 import { handleError } from '../utils/errors.js'
 
 export class SaleController {
-  constructor(saleService, saleView, productService, customerService, permissions = {}, accountingService = null) {
+  constructor(saleService, saleView, productService, memberService, permissions = {}, accountingService = null) {
     this._service = saleService
     this._view = saleView
     this._productService = productService
-    this._customerService = customerService
+    this._memberService = memberService
     this._permissions = permissions
     this._accountingService = accountingService
   }
@@ -34,11 +34,11 @@ export class SaleController {
   async showNewSale() {
     this._view.showLoading()
     try {
-      const [customers, products] = await Promise.all([
-        this._customerService.getAll(),
+      const [members, products] = await Promise.all([
+        this._memberService.getAll(),
         this._productService.getAll()
       ])
-      this._view.showNewSaleForm(customers, products, {
+      this._view.showNewSaleForm(members, products, {
         onSubmit: (data) => this.handleCreate(data),
         onCancel: () => this._view.closeForm()
       })

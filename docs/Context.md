@@ -2,34 +2,46 @@
 
 ## Stack
 - **Lenguaje**: JavaScript ES2022 (ES Modules)
-- **Base de datos**: IndexedDB vía Dexie ^4.4.4 (schema v8 con índices compuestos)
+- **Base de datos**: IndexedDB vía Dexie ^4.4.4 (schema v1 con 16 tablas + plugins)
 - **Framework UI**: Ninguno (vanilla JS)
 - **Tests**: Runner propio con DOM shim (Node.js)
 - **Gráficos**: Chart.js 4.x (UMD) — integrado en Dashboard (Fase 4.3)
-- **Servidor local**: Python HTTP server (puerto 3000)
+- **Servidor local**: Python HTTP server (puerto detectado automáticamente y persistido en `.openroot-port`)
 
 ## Arquitectura
 MVC estricto con capas: View → Controller → Service → Repository → Dexie.
 Prohibido saltarse capas (UI → DB no permitido).
 
-## Módulos completos (14)
+## Módulos completos (27)
 
 | Módulo | Archivos clave |
 |--------|---------------|
 | Productos | `ProductService`, `ProductController`, `ProductView` |
-| Clientes | `CustomerService`, `CustomerController`, `CustomerView` |
+| Clientes / Miembros | `MemberService`, `MemberController`, `MemberView` |
 | Inventario | `InventoryService`, `InventoryController`, `InventoryView` |
 | Ventas | `SaleService`, `SaleController`, `SaleView`, `SaleFormView` |
 | Proveedores | `SupplierService`, `SupplierController`, `SupplierView` |
 | Compras | `PurchaseService`, `PurchaseController`, `PurchaseView`, `PurchaseFormView` |
-| Reportes | `ReportService`, `ReportController`, `ReportView` |
+| Reportes | `ReportService`, `ReportController`, `ReportView` + 6 sub-views |
 | Dashboard | `DashboardService`, `DashboardController`, `DashboardView` |
 | Configuración | `SettingService`, `SettingsController`, `SettingsView` |
 | Exportación | `ExportService`, `ExportController`, `ExportView` |
 | Importación | `ImportService`, `ImportController`, `ImportView` |
-| Autenticación y Usuarios | `PasswordService`, `SessionService`, `PermissionService`, `AuthenticationService`, `SystemService`, `LoginController`, `SetupController`, `LoginView`, `SetupView`, `UserController`, `UserView` |
-| Usuarios (RBAC) | `UserController`, `UserView` — CRUD de usuarios, solo Admin |
-| Contabilidad | `AccountingService`, `AccountingController`, `AccountingView` — Plan de Cuentas, Libro Diario, Balance General, Estado de Resultados. Asientos automáticos desde ventas y compras. |
+| Autenticación | `PasswordService`, `SessionService`, `PermissionService`, `AuthenticationService`, `SystemService` |
+| Login/Setup | `LoginController`, `SetupController`, `LoginView`, `SetupView` |
+| Usuarios (RBAC) | `UserController`, `UserView` |
+| Contabilidad | `AccountingService`, `AccountingController`, `AccountingView` + 4 sub-vistas |
+| **Gimnasio** | |
+| Planes de Membresía | `MembershipPlanService`, `MembershipPlanController`, `MembershipPlanView` |
+| Membresías | `MembershipService`, `MembershipController`, `MembershipView` |
+| Historial Membresías | `MembershipHistoryService`, `MembershipHistoryController`, `MembershipHistoryView` |
+| Pagos Membresías | `MembershipPaymentService`, `MembershipPaymentController`, `MembershipPaymentView` |
+| Asistencias | `AttendanceService`, `AttendanceController`, `AttendanceView` |
+| Entrenadores | `TrainerService`, `TrainerController`, `TrainerView` |
+| Evolución Física | `PhysicalEvolutionService`, `PhysicalEvolutionController`, `PhysicalEvolutionView` |
+| Activos Gimnasio | `GymAssetService`, `GymAssetController`, `GymAssetView` |
+| Mantenimiento | `MaintenanceService`, `MaintenanceController`, `MaintenanceView` |
+| Plugins | `PluginService`, `PluginsController`, `PluginsView` |
 
 ## Utils (implementados)
 - `sanitizer.js` — escapeHtml, stripTags, sanitizeString, sanitizeObject, sanitizeNumeric, sanitizeAlphanumeric
@@ -77,7 +89,8 @@ La sección "Usuarios" solo aparece en el sidebar para usuarios con `users.view`
 ## PWA / Offline
 - Service Worker (`sw.js`) cachea 118 assets con estrategia stale-while-revalidate
 - `manifest.json` con `display: standalone` e iconos SVG para instalación
-- `setup.sh` (Linux) y `setup.bat` (Windows) para instalación en computador nuevo
+- `setup.sh` (Linux) y `setup.bat` (Windows) para instalación en computador nuevo — detectan puerto libre persistente y configuran auto-inicio opcional
+- `uninstall.sh` (Linux) y `uninstall.bat` (Windows) para desinstalación — detienen servidor, remueven auto-inicio y limpian temporales (la carpeta se elimina manualmente)
 - 100% offline sin dependencia de CDN o backend
 - Dexie se sirve desde `assets/lib/dexie.js` (copia local)
 
@@ -128,8 +141,8 @@ Al generar o modificar código, se aplican las skills en el siguiente orden estr
 - Runner unit/integration: `tests/run-all.js`
 - Runner E2E: `npm run test:e2e` (Playwright + Chromium headless, port 3099)
 - Smoke test visible: `node tests/e2e/smoke-visible.js` (headed, slowMo 200ms, graba video)
-- 45 suites unit/integration, 410+ tests, 0 fallos (incluye 9 suites de integración con 54+ tests)
-- 38 tests E2E, 0 fallos (cubre todos los módulos: setup, login, productos, clientes, proveedores, ventas, compras, inventario, contabilidad, reportes, settings, export, import, usuarios)
+- 59 suites unit/integration, 440+ tests, 0 fallos (incluye 9 suites de integración con 54+ tests)
+- 38 tests E2E, 0 fallos
 - Cada suite unitaria crea sus propios mocks (sin isolation entre suites)
 
 ## Archivos confidenciales — NO subir a GitHub

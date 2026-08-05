@@ -1,4 +1,4 @@
-# Instalación — Open RootERP
+# Instalación — Open Root Gym
 
 **Requisitos mínimos:**
 - Node.js 18+ (descargar de https://nodejs.org/)
@@ -11,7 +11,7 @@
 
 ```bash
 # 1. Ir a la carpeta del proyecto
-cd open-rooterp
+cd OpenRoot-ERP
 
 # 2. Ejecutar instalación
 chmod +x setup.sh
@@ -22,7 +22,7 @@ chmod +x setup.sh
 
 ```batch
 :: 1. Ir a la carpeta del proyecto
-cd open-rooterp
+cd OpenRoot-ERP
 
 :: 2. Ejecutar instalación
 setup.bat
@@ -37,12 +37,35 @@ npm install
 # 2. Copiar Dexie a assets/lib (necesario para offline)
 cp node_modules/dexie/dist/dexie.mjs assets/lib/dexie.js
 
-# 3. Iniciar servidor
-python3 -m http.server 3000
+# 3. Iniciar servidor (puerto detectado automáticamente)
+python3 -m http.server
 
 # 4. Abrir en el navegador
-# http://localhost:3000
+# El script muestra la URL con el puerto asignado
 ```
+
+## Desinstalación
+
+### Linux / macOS
+
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
+### Windows
+
+```batch
+uninstall.bat
+```
+
+Ambos scripts:
+- Detienen el servidor si está corriendo
+- Eliminan las entradas de auto-inicio (cron, systemd, registro)
+- Limpian archivos temporales (`.openroot-port`)
+- **Piden confirmación antes de eliminar la carpeta del proyecto** (eliminación manual al final)
+
+Ver [UNINSTALL.md](UNINSTALL.md) para detalles completos.
 
 ## Primer Uso
 
@@ -84,3 +107,4 @@ Al recargar la página, el Service Worker actualizará los assets automáticamen
 - No hay servidor remoto ni sincronización en la nube
 - Para respaldar los datos, usar Exportar → JSON (guardar el archivo)
 - Para restaurar, usar Importar → JSON (seleccionar el archivo)
+- El puerto del servidor se guarda en `.openroot-port` para que no cambie entre ejecuciones

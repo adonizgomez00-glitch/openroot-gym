@@ -1,5 +1,5 @@
 /*
- * Open RootERP — ERP 100% offline, open source, libre y gratuito
+ * Open Root Gym — Sistema de gestión para gimnasios, 100% offline, open source, libre y gratuito
  * Copyright (C) 2024 Adónis Adonai Gómez Martínez <adonizgomez00@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,10 @@ import { CustomerRepository } from './repositories/CustomerRepository.js'
 import { CustomerService } from './services/CustomerService.js'
 import { CustomerController } from './controllers/CustomerController.js'
 import { CustomerView } from './views/CustomerView.js'
+import { MemberRepository } from './repositories/MemberRepository.js'
+import { MemberService } from './services/MemberService.js'
+import { MemberController } from './controllers/MemberController.js'
+import { MemberView } from './views/MemberView.js'
 import { InventoryRepository } from './repositories/InventoryRepository.js'
 import { InventoryService } from './services/InventoryService.js'
 import { InventoryController } from './controllers/InventoryController.js'
@@ -84,6 +88,46 @@ import { AccountingRepository } from './repositories/AccountingRepository.js'
 import { AccountingService } from './services/AccountingService.js'
 import { AccountingController } from './controllers/AccountingController.js'
 import { AccountingView } from './views/AccountingView.js'
+import { MembershipPlanRepository } from './repositories/MembershipPlanRepository.js'
+import { MembershipPlanService } from './services/MembershipPlanService.js'
+import { MembershipPlanController } from './controllers/MembershipPlanController.js'
+import { MembershipPlanView } from './views/MembershipPlanView.js'
+import { MembershipRepository } from './repositories/MembershipRepository.js'
+import { MembershipService } from './services/MembershipService.js'
+import { MembershipController } from './controllers/MembershipController.js'
+import { MembershipView } from './views/MembershipView.js'
+import { MembershipHistoryRepository } from './repositories/MembershipHistoryRepository.js'
+import { MembershipHistoryService } from './services/MembershipHistoryService.js'
+import { MembershipHistoryController } from './controllers/MembershipHistoryController.js'
+import { MembershipHistoryView } from './views/MembershipHistoryView.js'
+import { MembershipPaymentRepository } from './repositories/MembershipPaymentRepository.js'
+import { MembershipPaymentService } from './services/MembershipPaymentService.js'
+import { MembershipPaymentController } from './controllers/MembershipPaymentController.js'
+import { MembershipPaymentView } from './views/MembershipPaymentView.js'
+import { AttendanceRepository } from './repositories/AttendanceRepository.js'
+import { AttendanceService } from './services/AttendanceService.js'
+import { AttendanceController } from './controllers/AttendanceController.js'
+import { AttendanceView } from './views/AttendanceView.js'
+import { TrainerRepository } from './repositories/TrainerRepository.js'
+import { TrainerService } from './services/TrainerService.js'
+import { TrainerController } from './controllers/TrainerController.js'
+import { TrainerView } from './views/TrainerView.js'
+import { PhysicalEvolutionRepository } from './repositories/PhysicalEvolutionRepository.js'
+import { PhysicalEvolutionService } from './services/PhysicalEvolutionService.js'
+import { PhysicalEvolutionController } from './controllers/PhysicalEvolutionController.js'
+import { PhysicalEvolutionView } from './views/PhysicalEvolutionView.js'
+import { GymAssetRepository } from './repositories/GymAssetRepository.js'
+import { GymAssetService } from './services/GymAssetService.js'
+import { GymAssetController } from './controllers/GymAssetController.js'
+import { GymAssetView } from './views/GymAssetView.js'
+import { MaintenanceRepository } from './repositories/MaintenanceRepository.js'
+import { MaintenanceService } from './services/MaintenanceService.js'
+import { MaintenanceController } from './controllers/MaintenanceController.js'
+import { MaintenanceView } from './views/MaintenanceView.js'
+import { PLUGINS } from './config/plugins.js'
+import { PluginService } from './services/PluginService.js'
+import { PluginsController } from './controllers/PluginsController.js'
+import { PluginsView } from './views/PluginsView.js'
 
 async function main() {
   await db.open()
@@ -103,6 +147,13 @@ async function main() {
   const permissionService = new PermissionService(permRepo, roleRepo)
   const authService = new AuthenticationService(userRepo, sessionService, passwordService)
   const systemService = new SystemService(userRepo, roleRepo, permRepo, settingRepo)
+  const pluginService = new PluginService({
+    settingRepository: settingRepo,
+    permissionRepository: permRepo,
+    roleRepository: roleRepo,
+    db,
+    plugins: PLUGINS
+  })
   await systemService.ensureDefaultPermissions()
   const currencySymbol = await settingRepo.get('currency_symbol')
   if (currencySymbol) setCurrencySymbol(currencySymbol)
@@ -114,6 +165,7 @@ async function main() {
 
   let header = null
   let _userPermissions = {}
+  let _permissionSet = new Set()
   let _currentUser = null
 
   async function buildPermissions() {
@@ -121,10 +173,12 @@ async function main() {
     _currentUser = session
     if (!session) {
       _userPermissions = {}
+      _permissionSet = new Set()
       return
     }
     const roleId = session.roleId
-    const [canCancelSales, canCancelPurchases, canDeleteSales, canDeletePurchases, canImport, canCreateUsers, canEditUsers, canDeleteUsers, canViewUsers, isAdmin] = await Promise.all([
+    const [rolePermissions, canCancelSales, canCancelPurchases, canDeleteSales, canDeletePurchases, canImport, canCreateUsers, canEditUsers, canDeleteUsers, canViewUsers, isAdmin] = await Promise.all([
+      permissionService.getPermissionsForRole(roleId),
       permissionService.hasPermission(roleId, 'sales.cancel'),
       permissionService.hasPermission(roleId, 'purchases.cancel'),
       permissionService.hasPermission(roleId, 'sales.delete'),
@@ -136,32 +190,23 @@ async function main() {
       permissionService.hasPermission(roleId, 'users.view'),
       permissionService.isAdmin(roleId)
     ])
+    _permissionSet = new Set((rolePermissions || []).map(p => p.name))
     _userPermissions = { canCancelSales, canCancelPurchases, canDeleteSales, canDeletePurchases, canImport, canCreateUsers, canEditUsers, canDeleteUsers, canViewUsers, isAdmin, roleId }
   }
 
   async function startApp() {
     await buildPermissions()
     clearElement(app)
-    const sidebarItems = [
-      { id: 'dashboard', label: 'Dashboard', icon: '\u25a0' },
-      { id: 'products', label: 'Productos', icon: '\u2616' },
-      { id: 'customers', label: 'Clientes', icon: '\u263a' },
-      { id: 'suppliers', label: 'Proveedores', icon: '\u2191' },
-      { id: 'sales', label: 'Ventas', icon: '\u2714' },
-      { id: 'purchases', label: 'Compras', icon: '\u2190' },
-      { id: 'inventory', label: 'Inventario', icon: '\u25a3' },
-      { id: 'reports', label: 'Reportes', icon: '\u2261' },
-      { id: 'accounting', label: 'Contabilidad', icon: '\u2630' },
-      { id: 'settings', label: 'Configuración', icon: '\u2699' },
-      { id: 'exports', label: 'Exportar', icon: '\u2197' },
-      { id: 'imports', label: 'Importar', icon: '\u2193' }
-    ]
-    if (_userPermissions.canViewUsers) {
-      sidebarItems.push({ id: 'users', label: 'Usuarios', icon: '\u263c' })
+    const sidebarItems = []
+    for (const plugin of PLUGINS) {
+      if (!(await pluginService.isEnabled(plugin.id))) continue
+      if (plugin.adminOnly && !_userPermissions.isAdmin) continue
+      if (plugin.viewPermission && !_permissionSet.has(plugin.viewPermission)) continue
+      sidebarItems.push({ id: plugin.id, label: plugin.label, icon: plugin.icon })
     }
     const sidebar = new Sidebar({
-      brandName: 'Open RootERP',
-      brandIcon: '\u2699',
+      brandName: 'Open Root Gym',
+      brandIcon: '\uD83C\uDFCB',
       items: sidebarItems,
       onNavigate: (id) => navigate(id)
     })
@@ -186,30 +231,44 @@ async function main() {
 
   function navigate(moduleId) {
     clearElement(main)
-    switch (moduleId) {
-      case 'dashboard': header.setTitle('Dashboard'); loadDashboard(main); break
-      case 'products': header.setTitle('Productos'); loadProducts(main); break
-      case 'customers': header.setTitle('Clientes'); loadCustomers(main); break
-      case 'reports': header.setTitle('Reportes'); loadReports(main); break
-      case 'inventory': header.setTitle('Inventario'); loadInventory(main); break
-      case 'suppliers': header.setTitle('Proveedores'); loadSuppliers(main); break
-      case 'purchases': header.setTitle('Compras'); loadPurchases(main); break
-      case 'sales': header.setTitle('Ventas'); loadSales(main); break
-      case 'settings': header.setTitle('Configuración'); loadSettings(main); break
-      case 'exports': header.setTitle('Exportar Datos'); loadExports(main); break
-      case 'imports': header.setTitle('Importar Datos'); loadImports(main); break
-      case 'accounting': header.setTitle('Contabilidad'); loadAccounting(main); break
-      case 'users': header.setTitle('Usuarios'); loadUsers(main); break
-      default: {
-        const div = document.createElement('div')
-        div.className = 'placeholder'
-        const p = document.createElement('p')
-        p.textContent = `Módulo "${moduleId}" en construcción`
-        div.appendChild(p)
-        main.appendChild(div)
-        break
-      }
+    const loaders = {
+      dashboard: loadDashboard,
+      products: loadProducts,
+      members: loadMembers,
+      suppliers: loadSuppliers,
+      sales: loadSales,
+      purchases: loadPurchases,
+      inventory: loadInventory,
+      reports: loadReports,
+      accounting: loadAccounting,
+      settings: loadSettings,
+      exports: loadExports,
+      imports: loadImports,
+      users: loadUsers,
+      plugins: loadPlugins,
+      membershipPlans: loadMembershipPlans,
+      memberships: loadMemberships,
+       membershipHistory: loadMembershipHistory,
+       membershipPayments: loadMembershipPayments,
+       attendance: loadAttendance,
+       trainers: loadTrainers,
+       physicalEvolutions: loadPhysicalEvolutions,
+       gymAssets: loadGymAssets,
+       maintenance: loadMaintenance
+     }
+    const loader = loaders[moduleId]
+    if (loader) {
+      const plugin = PLUGINS.find(p => p.id === moduleId)
+      header.setTitle(plugin ? plugin.label : moduleId)
+      loader(main)
+      return
     }
+    const div = document.createElement('div')
+    div.className = 'placeholder'
+    const p = document.createElement('p')
+    p.textContent = `Módulo "${moduleId}" en construcción`
+    div.appendChild(p)
+    main.appendChild(div)
   }
 
   function loadSettings(container) {
@@ -221,12 +280,21 @@ async function main() {
 
   function loadExports(container) {
     const productRepo = new ProductRepository(db)
-    const customerRepo = new CustomerRepository(db)
+    const memberRepo = new MemberRepository(db)
     const supplierRepo = new SupplierRepository(db)
     const saleRepo = new SaleRepository(db)
     const purchaseRepo = new PurchaseRepository(db)
     const inventoryRepo = new InventoryRepository(db)
-    const exportService = new ExportService(productRepo, customerRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo)
+    const membershipPlanRepo = new MembershipPlanRepository(db)
+    const membershipRepo = new MembershipRepository(db)
+    const membershipHistoryRepo = new MembershipHistoryRepository(db)
+    const membershipPaymentRepo = new MembershipPaymentRepository(db)
+    const attendanceRepo = new AttendanceRepository(db)
+    const trainerRepo = new TrainerRepository(db)
+    const physicalEvolutionRepo = new PhysicalEvolutionRepository(db)
+    const gymAssetRepo = new GymAssetRepository(db)
+    const maintenanceRepo = new MaintenanceRepository(db)
+    const exportService = new ExportService(productRepo, memberRepo, supplierRepo, saleRepo, purchaseRepo, inventoryRepo, settingRepo, membershipPlanRepo, membershipRepo, membershipHistoryRepo, membershipPaymentRepo, attendanceRepo, trainerRepo, physicalEvolutionRepo, gymAssetRepo, maintenanceRepo)
     const exportView = new ExportView()
     const exportController = new ExportController(exportService, exportView)
     exportController.init(container)
@@ -234,14 +302,23 @@ async function main() {
 
   function loadImports(container) {
     const productRepo = new ProductRepository(db)
-    const customerRepo = new CustomerRepository(db)
+    const memberRepo = new MemberRepository(db)
     const supplierRepo = new SupplierRepository(db)
     const settingRepo = new SettingRepository(db)
     const saleRepo = new SaleRepository(db)
     const purchaseRepo = new PurchaseRepository(db)
     const inventoryRepo = new InventoryRepository(db)
     const reportRepo = new ReportRepository(db)
-    const importService = new ImportService(productRepo, customerRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, reportRepo)
+    const membershipPlanRepo = new MembershipPlanRepository(db)
+    const membershipRepo = new MembershipRepository(db)
+    const membershipHistoryRepo = new MembershipHistoryRepository(db)
+    const membershipPaymentRepo = new MembershipPaymentRepository(db)
+    const attendanceRepo = new AttendanceRepository(db)
+    const trainerRepo = new TrainerRepository(db)
+    const physicalEvolutionRepo = new PhysicalEvolutionRepository(db)
+    const gymAssetRepo = new GymAssetRepository(db)
+    const maintenanceRepo = new MaintenanceRepository(db)
+    const importService = new ImportService(productRepo, memberRepo, supplierRepo, settingRepo, saleRepo, purchaseRepo, inventoryRepo, reportRepo, membershipPlanRepo, membershipRepo, membershipHistoryRepo, membershipPaymentRepo, attendanceRepo, trainerRepo, physicalEvolutionRepo, gymAssetRepo, maintenanceRepo)
     const importView = new ImportView()
     const importController = new ImportController(importService, importView, _userPermissions)
     importController.init(container)
@@ -253,14 +330,28 @@ async function main() {
     userController.init(container)
   }
 
+  function loadPlugins(container) {
+    const pluginsView = new PluginsView()
+    const pluginsController = new PluginsController(pluginService, pluginsView, () => startApp())
+    pluginsController.init(container)
+  }
+
   function loadDashboard(container) {
     const productRepo = new ProductRepository(db)
-    const customerRepo = new CustomerRepository(db)
+    const memberRepo = new MemberRepository(db)
     const supplierRepo = new SupplierRepository(db)
     const saleRepo = new SaleRepository(db)
     const purchaseRepo = new PurchaseRepository(db)
     const inventoryRepo = new InventoryRepository(db)
-    const dashboardService = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+    const membershipPlanRepo = new MembershipPlanRepository(db)
+    const membershipRepo = new MembershipRepository(db)
+    const membershipPaymentRepo = new MembershipPaymentRepository(db)
+    const attendanceRepo = new AttendanceRepository(db)
+    const trainerRepo = new TrainerRepository(db)
+    const physicalEvolutionRepo = new PhysicalEvolutionRepository(db)
+    const gymAssetRepo = new GymAssetRepository(db)
+    const maintenanceRepo = new MaintenanceRepository(db)
+    const dashboardService = new DashboardService(saleRepo, purchaseRepo, productRepo, memberRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo, trainerRepo, physicalEvolutionRepo, gymAssetRepo, maintenanceRepo)
     const dashboardView = new DashboardView()
     const dashboardController = new DashboardController(dashboardService, dashboardView)
     dashboardController.init(container)
@@ -274,12 +365,12 @@ async function main() {
     productController.init(container)
   }
 
-  function loadCustomers(container) {
-    const customerRepo = new CustomerRepository(db)
-    const customerService = new CustomerService(customerRepo)
-    const customerView = new CustomerView()
-    const customerController = new CustomerController(customerService, customerView, customerRepo)
-    customerController.init(container)
+  function loadMembers(container) {
+    const memberRepo = new MemberRepository(db)
+    const memberService = new MemberService(memberRepo)
+    const memberView = new MemberView()
+    const memberController = new MemberController(memberService, memberView, memberRepo)
+    memberController.init(container)
   }
 
   function loadInventory(container) {
@@ -303,10 +394,17 @@ async function main() {
     const saleRepo = new SaleRepository(db)
     const purchaseRepo = new PurchaseRepository(db)
     const productRepo = new ProductRepository(db)
-    const customerRepo = new CustomerRepository(db)
+    const memberRepo = new MemberRepository(db)
     const supplierRepo = new SupplierRepository(db)
     const inventoryRepo = new InventoryRepository(db)
-    const reportService = new ReportService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+    const membershipRepo = new MembershipRepository(db)
+    const membershipPaymentRepo = new MembershipPaymentRepository(db)
+    const attendanceRepo = new AttendanceRepository(db)
+    const trainerRepo = new TrainerRepository(db)
+    const physicalEvolutionRepo = new PhysicalEvolutionRepository(db)
+    const gymAssetRepo = new GymAssetRepository(db)
+    const maintenanceRepo = new MaintenanceRepository(db)
+    const reportService = new ReportService(saleRepo, purchaseRepo, productRepo, memberRepo, supplierRepo, inventoryRepo, membershipRepo, membershipPaymentRepo, attendanceRepo, trainerRepo, physicalEvolutionRepo, gymAssetRepo, maintenanceRepo)
     const reportView = new ReportView()
     const reportController = new ReportController(reportService, reportView)
     reportController.init(container)
@@ -337,14 +435,14 @@ async function main() {
 
   function loadSales(container) {
     const productRepo = new ProductRepository(db)
-    const customerRepo = new CustomerRepository(db)
+    const memberRepo = new MemberRepository(db)
     const saleRepo = new SaleRepository(db)
     const inventoryRepo = new InventoryRepository(db)
-    const saleService = new SaleService(db, saleRepo, productRepo, customerRepo, inventoryRepo)
+    const saleService = new SaleService(db, saleRepo, productRepo, memberRepo, inventoryRepo)
     const productService = new ProductService(productRepo)
-    const customerService = new CustomerService(customerRepo)
+    const memberService = new MemberService(memberRepo)
     const saleView = new SaleView()
-    const saleController = new SaleController(saleService, saleView, productService, customerService, _userPermissions, getAccountingService())
+    const saleController = new SaleController(saleService, saleView, productService, memberService, _userPermissions, getAccountingService())
     saleController.init(container)
   }
 
@@ -354,6 +452,86 @@ async function main() {
     const acctView = new AccountingView()
     const acctController = new AccountingController(acctService, acctView)
     acctController.init(container)
+  }
+
+  function loadMembershipPlans(container) {
+    const membershipPlanRepo = new MembershipPlanRepository(db)
+    const membershipPlanService = new MembershipPlanService(membershipPlanRepo)
+    const membershipPlanView = new MembershipPlanView()
+    const membershipPlanController = new MembershipPlanController(membershipPlanService, membershipPlanView)
+    membershipPlanController.init(container)
+  }
+
+  function loadMemberships(container) {
+    const membershipRepo = new MembershipRepository(db)
+    const membershipPlanRepo = new MembershipPlanRepository(db)
+    const membershipHistoryRepo = new MembershipHistoryRepository(db)
+    const memberRepo = new MemberRepository(db)
+    const membershipService = new MembershipService(membershipRepo, membershipPlanRepo, membershipHistoryRepo, memberRepo)
+    const membershipView = new MembershipView()
+    const membershipController = new MembershipController(membershipService, membershipView, membershipRepo, memberRepo, membershipPlanRepo)
+    membershipController.init(container)
+  }
+
+  function loadMembershipHistory(container) {
+    const membershipHistoryRepo = new MembershipHistoryRepository(db)
+    const membershipHistoryService = new MembershipHistoryService(membershipHistoryRepo)
+    const membershipHistoryView = new MembershipHistoryView()
+    const membershipHistoryController = new MembershipHistoryController(membershipHistoryService, membershipHistoryView)
+    membershipHistoryController.init(container)
+  }
+
+  function loadMembershipPayments(container) {
+    const membershipPaymentRepo = new MembershipPaymentRepository(db)
+    const membershipRepo = new MembershipRepository(db)
+    const acctRepo = new AccountingRepository(db)
+    const accountingService = new AccountingService(acctRepo)
+    const membershipPaymentService = new MembershipPaymentService(membershipPaymentRepo, membershipRepo, accountingService)
+    const membershipPaymentView = new MembershipPaymentView()
+    const membershipPaymentController = new MembershipPaymentController(membershipPaymentService, membershipPaymentView)
+    membershipPaymentController.init(container)
+  }
+
+  function loadAttendance(container) {
+    const attendanceRepo = new AttendanceRepository(db)
+    const memberRepo = new MemberRepository(db)
+    const attendanceService = new AttendanceService(attendanceRepo, memberRepo)
+    const attendanceView = new AttendanceView()
+    const attendanceController = new AttendanceController(attendanceService, attendanceView, memberRepo)
+    attendanceController.init(container)
+  }
+
+  function loadTrainers(container) {
+    const trainerRepo = new TrainerRepository(db)
+    const trainerService = new TrainerService(trainerRepo)
+    const trainerView = new TrainerView()
+    const trainerController = new TrainerController(trainerService, trainerView, trainerRepo)
+    trainerController.init(container)
+  }
+
+  function loadPhysicalEvolutions(container) {
+    const physicalEvolutionRepo = new PhysicalEvolutionRepository(db)
+    const memberRepo = new MemberRepository(db)
+    const physicalEvolutionService = new PhysicalEvolutionService(physicalEvolutionRepo, memberRepo)
+    const physicalEvolutionView = new PhysicalEvolutionView()
+    const physicalEvolutionController = new PhysicalEvolutionController(physicalEvolutionService, physicalEvolutionView)
+    physicalEvolutionController.init(container)
+  }
+
+  function loadGymAssets(container) {
+    const gymAssetRepo = new GymAssetRepository(db)
+    const gymAssetService = new GymAssetService(gymAssetRepo)
+    const gymAssetView = new GymAssetView()
+    const gymAssetController = new GymAssetController(gymAssetService, gymAssetView, gymAssetRepo)
+    gymAssetController.init(container)
+  }
+
+  function loadMaintenance(container) {
+    const maintenanceRepo = new MaintenanceRepository(db)
+    const maintenanceService = new MaintenanceService(maintenanceRepo)
+    const maintenanceView = new MaintenanceView()
+    const maintenanceController = new MaintenanceController(maintenanceService, maintenanceView)
+    maintenanceController.init(container)
   }
 
   function showSetup() {
@@ -406,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
       container.appendChild(detail)
 
       const resetBtn = document.createElement('button')
-      resetBtn.style.cssText = 'margin-top:1rem;padding:0.75rem 1.5rem;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer'
+      resetBtn.style.cssText = 'margin-top:1rem;padding:0.75rem 1.5rem;background:#ea580c;color:#fff;border:none;border-radius:6px;cursor:pointer'
       resetBtn.textContent = 'Restablecer base de datos y recargar'
       resetBtn.addEventListener('click', () => {
         indexedDB.deleteDatabase('ERPLigero')

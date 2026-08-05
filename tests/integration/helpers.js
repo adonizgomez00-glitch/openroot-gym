@@ -34,7 +34,7 @@ export function createMockDB() {
     }
     return api
   }
-  const tableNames = ['products', 'customers', 'suppliers', 'sales', 'saleItems', 'purchases', 'purchaseItems', 'inventoryMovements', 'accounts', 'accountingEntries', 'settings']
+  const tableNames = ['products', 'members', 'suppliers', 'sales', 'saleItems', 'purchases', 'purchaseItems', 'inventoryMovements', 'accounts', 'accountingEntries', 'settings']
   for (const name of tableNames) stores[name] = makeStore()
   stores.transaction = async (...args) => {
     const cb = typeof args[args.length - 1] === 'function' ? args.pop() : null
@@ -81,13 +81,13 @@ export async function seedProduct(db, overrides = {}) {
   return product
 }
 
-export async function seedCustomer(db) {
-  const id = await db.customers.add({
-    documentId: 'C001-TEST', name: 'Cliente Test', email: 'test@test.com',
+export async function seedMember(db) {
+  const id = await db.members.add({
+    documentId: 'M001-TEST', name: 'Miembro Test', email: 'test@test.com',
     phone: '5555-0000', address: '', active: true,
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
   })
-  return await db.customers.get(id)
+  return await db.members.get(id)
 }
 
 export async function seedSupplier(db) {

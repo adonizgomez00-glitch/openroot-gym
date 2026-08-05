@@ -1,7 +1,7 @@
 import { SaleRepository } from './SaleRepository.js'
 import { PurchaseRepository } from './PurchaseRepository.js'
 import { ProductRepository } from './ProductRepository.js'
-import { CustomerRepository } from './CustomerRepository.js'
+import { MemberRepository } from './MemberRepository.js'
 import { SupplierRepository } from './SupplierRepository.js'
 import { InventoryRepository } from './InventoryRepository.js'
 
@@ -11,7 +11,7 @@ export class ReportRepository {
     this._saleRepo = new SaleRepository(db)
     this._purchaseRepo = new PurchaseRepository(db)
     this._productRepo = new ProductRepository(db)
-    this._customerRepo = new CustomerRepository(db)
+    this._memberRepo = new MemberRepository(db)
     this._supplierRepo = new SupplierRepository(db)
     this._inventoryRepo = new InventoryRepository(db)
   }
@@ -103,21 +103,21 @@ export class ReportRepository {
   }
 
   async _generateSummary() {
-    const [productCount, customerCount, supplierCount, saleCount, purchaseCount] = await Promise.all([
+    const [productCount, memberCount, supplierCount, saleCount, purchaseCount] = await Promise.all([
       this._productRepo.count(),
-      this._customerRepo.count(),
+      this._memberRepo.count(),
       this._supplierRepo.count(),
       this._saleRepo.count(),
       this._purchaseRepo.count()
     ])
 
-    return {
-      products: productCount,
-      customers: customerCount,
-      suppliers: supplierCount,
-      sales: saleCount,
-      purchases: purchaseCount
-    }
+return {
+       products: productCount,
+       members: memberCount,
+       suppliers: supplierCount,
+       sales: saleCount,
+       purchases: purchaseCount
+     }
   }
 
   _getStockStatus(stock, stockMin) {

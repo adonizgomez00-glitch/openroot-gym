@@ -1,4 +1,4 @@
-import { CustomerService } from '../../src/services/CustomerService.js'
+import { MemberService } from '../../src/services/MemberService.js'
 
 function createMockRepository() {
   const customers = []
@@ -36,14 +36,14 @@ function createMockRepository() {
 
     async update(id, data) {
       const idx = customers.findIndex(x => x.id === id)
-      if (idx === -1) throw new Error(`Cliente con id ${id} no encontrado`)
+      if (idx === -1) throw new Error(`Miembro con id ${id} no encontrado`)
       customers[idx] = { ...customers[idx], ...data, updatedAt: new Date().toISOString() }
       return { ...customers[idx] }
     },
 
     async delete(id) {
       const idx = customers.findIndex(x => x.id === id)
-      if (idx === -1) throw new Error(`Cliente con id ${id} no encontrado`)
+      if (idx === -1) throw new Error(`Miembro con id ${id} no encontrado`)
       customers.splice(idx, 1)
       return true
     }
@@ -58,25 +58,25 @@ function assert(condition, message) {
 
 async function testGetAll() {
   const repo = createMockRepository()
-  const service = new CustomerService(repo)
+  const service = new MemberService(repo)
 
-  repo.customers.push({ id: 1, documentId: 'C001', name: 'Cliente 1' })
-  repo.customers.push({ id: 2, documentId: 'C002', name: 'Cliente 2' })
+  repo.customers.push({ id: 1, documentId: 'C001', name: 'Miembro 1' })
+  repo.customers.push({ id: 2, documentId: 'C002', name: 'Miembro 2' })
 
   const result = await service.getAll()
-  assert(result.length === 2, 'getAll debería retornar 2 clientes')
-  assert(result[0].name === 'Cliente 1', 'getAll debería retornar el primer cliente')
+  assert(result.length === 2, 'getAll debería retornar 2 miembros')
+  assert(result[0].name === 'Miembro 1', 'getAll debería retornar el primer miembro')
   console.log('  ✓ testGetAll')
 }
 
 async function testGetById() {
   const repo = createMockRepository()
-  const service = new CustomerService(repo)
+  const service = new MemberService(repo)
 
-  repo.customers.push({ id: 1, documentId: 'C001', name: 'Cliente 1' })
+  repo.customers.push({ id: 1, documentId: 'C001', name: 'Miembro 1' })
 
   const customer = await service.getById(1)
-  assert(customer !== null, 'getById debería retornar el cliente')
+  assert(customer !== null, 'getById debería retornar el miembro')
   assert(customer.documentId === 'C001', 'getById debería retornar el documento correcto')
 
   try {
@@ -94,7 +94,7 @@ async function testGetById() {
 
 async function testSearch() {
   const repo = createMockRepository()
-  const service = new CustomerService(repo)
+  const service = new MemberService(repo)
 
   repo.customers.push({ id: 1, documentId: 'C001', name: 'Juan Pérez', email: 'juan@email.com' })
   repo.customers.push({ id: 2, documentId: 'C002', name: 'María García', email: 'maria@email.com' })
@@ -118,17 +118,17 @@ async function testSearch() {
 
 async function testCreate() {
   const repo = createMockRepository()
-  const service = new CustomerService(repo)
+  const service = new MemberService(repo)
 
   const customer = await service.create({
     documentId: 'C001',
-    name: 'Nuevo Cliente',
-    email: 'cliente@email.com',
+    name: 'Nuevo Miembro',
+    email: 'miembro@email.com',
     phone: '999888777'
   })
 
   assert(customer.id !== undefined, 'create debería asignar un ID')
-  assert(customer.name === 'Nuevo Cliente', 'create debería retornar el cliente creado')
+  assert(customer.name === 'Nuevo Miembro', 'create debería retornar el miembro creado')
   assert(repo.customers.length === 1, 'create debería agregar al repositorio')
 
   console.log('  ✓ testCreate')
@@ -136,7 +136,7 @@ async function testCreate() {
 
 async function testUpdate() {
   const repo = createMockRepository()
-  const service = new CustomerService(repo)
+  const service = new MemberService(repo)
 
   repo.customers.push({ id: 1, documentId: 'C001', name: 'Nombre Original', email: 'original@email.com' })
 
@@ -156,14 +156,14 @@ async function testUpdate() {
 
 async function testDelete() {
   const repo = createMockRepository()
-  const service = new CustomerService(repo)
+  const service = new MemberService(repo)
 
-  repo.customers.push({ id: 1, documentId: 'C001', name: 'Cliente a eliminar' })
+  repo.customers.push({ id: 1, documentId: 'C001', name: 'Miembro a eliminar' })
 
-  assert(repo.customers.length === 1, 'debería haber 1 cliente antes de eliminar')
+  assert(repo.customers.length === 1, 'debería haber 1 miembro antes de eliminar')
 
   await service.delete(1)
-  assert(repo.customers.length === 0, 'delete debería eliminar el cliente')
+  assert(repo.customers.length === 0, 'delete debería eliminar el miembro')
 
   try {
     await service.delete(999)
@@ -175,7 +175,7 @@ async function testDelete() {
 
 async function testGetByIdError() {
   const repo = createMockRepository()
-  const service = new CustomerService(repo)
+  const service = new MemberService(repo)
 
   try {
     await service.getById(undefined)
@@ -187,8 +187,8 @@ async function testGetByIdError() {
   console.log('  ✓ testGetByIdError')
 }
 
-export async function runCustomerServiceTests() {
-  console.log('\n--- CustomerService Tests ---\n')
+export async function runMemberServiceTests() {
+  console.log('\n--- MemberService Tests ---\n')
 
   await testGetAll()
   await testGetById()
@@ -198,5 +198,5 @@ export async function runCustomerServiceTests() {
   await testDelete()
   await testGetByIdError()
 
-  console.log('\n✓ Todos los tests de CustomerService pasaron\n')
+  console.log('\n✓ Todos los tests de MemberService pasaron\n')
 }

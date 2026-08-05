@@ -22,7 +22,7 @@ export class LoginView {
 
     const icon = document.createElement('div')
     icon.className = 'auth-card__icon'
-    icon.textContent = '\u2699'
+    icon.textContent = '\uD83C\uDFCB'
 
     const title = document.createElement('h1')
     title.className = 'auth-card__title'

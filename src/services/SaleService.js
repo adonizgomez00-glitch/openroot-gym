@@ -1,11 +1,11 @@
 import { getTaxRate } from '../utils/formatters.js'
 
 export class SaleService {
-  constructor(db, saleRepository, productRepository, customerRepository, inventoryRepository) {
+  constructor(db, saleRepository, productRepository, memberRepository, inventoryRepository) {
     this._db = db
     this._saleRepo = saleRepository
     this._productRepo = productRepository
-    this._customerRepo = customerRepository
+    this._memberRepo = memberRepository
     this._inventoryRepo = inventoryRepository
   }
 
@@ -25,9 +25,10 @@ export class SaleService {
       throw new Error('La venta debe tener al menos un producto')
     }
 
-    if (saleData.customerId) {
-      const customer = await this._customerRepo.findById(saleData.customerId)
-      if (!customer) throw new Error('Cliente no encontrado')
+    const memberId = saleData.customerId || saleData.memberId
+    if (memberId) {
+      const member = await this._memberRepo.findById(memberId)
+      if (!member) throw new Error('Miembro no encontrado')
     }
 
     const resolvedItems = []

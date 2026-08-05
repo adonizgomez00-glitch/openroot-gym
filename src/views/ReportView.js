@@ -1,8 +1,13 @@
 import { Toast } from '../components/Toast.js'
 import { Loader } from '../components/Loader.js'
+import { Table } from '../components/Table.js'
+import { formatDate } from '../utils/formatters.js'
 import { ReportSalesView } from './ReportSalesView.js'
 import { ReportPurchasesView } from './ReportPurchasesView.js'
 import { ReportStockView } from './ReportStockView.js'
+import { ReportTrainersView } from './ReportTrainersView.js'
+import { ReportGymAssetsView } from './ReportGymAssetsView.js'
+import { ReportMaintenanceView } from './ReportMaintenanceView.js'
 
 export class ReportView {
   constructor() {
@@ -14,6 +19,9 @@ export class ReportView {
     this._salesView = new ReportSalesView()
     this._purchasesView = new ReportPurchasesView()
     this._stockView = new ReportStockView()
+    this._trainersView = new ReportTrainersView()
+    this._gymAssetsView = new ReportGymAssetsView()
+    this._maintenanceView = new ReportMaintenanceView()
   }
 
   render(container) {
@@ -43,7 +51,12 @@ export class ReportView {
     const tabLabels = [
       { id: 'sales', label: 'Ventas' },
       { id: 'purchases', label: 'Compras' },
-      { id: 'stock', label: 'Stock' }
+      { id: 'stock', label: 'Stock' },
+      { id: 'memberships', label: 'Membresías' },
+      { id: 'attendance', label: 'Asistencias' },
+      { id: 'trainers', label: 'Entrenadores' },
+      { id: 'gymAssets', label: 'Activos' },
+      { id: 'maintenance', label: 'Mantenimiento' }
     ]
 
     for (const tab of tabLabels) {
@@ -109,10 +122,13 @@ export class ReportView {
 
     const cards = [
       { label: 'Productos', value: String(summary.products) },
-      { label: 'Clientes', value: String(summary.customers) },
+      { label: 'Miembros', value: String(summary.members) },
       { label: 'Proveedores', value: String(summary.suppliers) },
       { label: 'Ventas', value: String(summary.sales) },
-      { label: 'Compras', value: String(summary.purchases) }
+      { label: 'Compras', value: String(summary.purchases) },
+      { label: 'Entrenadores', value: String(summary.trainers) },
+      { label: 'Activos', value: String(summary.gymAssets) },
+      { label: 'Mantenimientos', value: String(summary.maintenance) }
     ]
 
     for (const card of cards) {
@@ -162,6 +178,97 @@ export class ReportView {
   renderStockReport(report) {
     const container = this._getResultsContainer()
     this._stockView.render(container, report)
+  }
+
+  renderMembershipsReport(report) {
+    const container = this._getResultsContainer()
+    container.innerHTML = ''
+
+    const summary = document.createElement('div')
+    summary.className = 'report-summary-bar'
+
+    const addStat = (label, value) => {
+      const span = document.createElement('span')
+      span.className = 'report-stat'
+      const strong = document.createElement('strong')
+      strong.textContent = label + ':'
+      span.appendChild(strong)
+      span.appendChild(document.createTextNode(' ' + value))
+      summary.appendChild(span)
+    }
+
+    addStat('Total', String(report.summary.total))
+    addStat('Activas', String(report.summary.active))
+    addStat('Expiradas', String(report.summary.expired))
+    addStat('Congeladas', String(report.summary.frozen))
+    summary.appendChild(document.createElement('br'))
+    addStat('Pagos', String(report.summary.totalPayments))
+
+    container.appendChild(summary)
+
+    const table = new Table({
+      columns: [
+        { key: 'id', label: 'N°', width: '60px' },
+        { key: 'startDate', label: 'Inicio', width: '120px', render: (v) => formatDate(v) },
+        { key: 'endDate', label: 'Vencimiento', width: '120px', render: (v) => formatDate(v) },
+        { key: 'status', label: 'Estado', width: '100px' },
+        { key: 'price', label: 'Precio', width: '100px' }
+      ],
+      emptyMessage: 'No hay membresías en el período seleccionado'
+    })
+
+    table.setData(report.items)
+    container.appendChild(table.render())
+  }
+
+  renderAttendanceReport(report) {
+    const container = this._getResultsContainer()
+    container.innerHTML = ''
+
+    const summary = document.createElement('div')
+    summary.className = 'report-summary-bar'
+
+    const addStat = (label, value) => {
+      const span = document.createElement('span')
+      span.className = 'report-stat'
+      const strong = document.createElement('strong')
+      strong.textContent = label + ':'
+      span.appendChild(strong)
+      span.appendChild(document.createTextNode(' ' + value))
+      summary.appendChild(span)
+    }
+
+    addStat('Total', String(report.summary.total))
+
+    container.appendChild(summary)
+
+    const table = new Table({
+      columns: [
+        { key: 'id', label: 'N°', width: '60px' },
+        { key: 'memberId', label: 'ID Miembro', width: '100px' },
+        { key: 'date', label: 'Fecha', width: '120px', render: (v) => formatDate(v) },
+        { key: 'time', label: 'Hora', width: '80px' }
+      ],
+      emptyMessage: 'No hay asistencias en el período seleccionado'
+    })
+
+    table.setData(report.items)
+    container.appendChild(table.render())
+  }
+
+  renderTrainersReport(report) {
+    const container = this._getResultsContainer()
+    this._trainersView.render(container, report)
+  }
+
+  renderGymAssetsReport(report) {
+    const container = this._getResultsContainer()
+    this._gymAssetsView.render(container, report)
+  }
+
+  renderMaintenanceReport(report) {
+    const container = this._getResultsContainer()
+    this._maintenanceView.render(container, report)
   }
 
   getDateRange() {

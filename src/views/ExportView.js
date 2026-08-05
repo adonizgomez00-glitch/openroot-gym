@@ -47,12 +47,21 @@ export class ExportView {
 
     const entities = [
       { value: 'products', label: 'Productos' },
-      { value: 'customers', label: 'Clientes' },
+      { value: 'members', label: 'Miembros' },
       { value: 'suppliers', label: 'Proveedores' },
       { value: 'sales', label: 'Ventas' },
       { value: 'purchases', label: 'Compras' },
       { value: 'movements', label: 'Movimientos de Inventario' },
       { value: 'settings', label: 'Configuración' },
+      { value: 'membershipPlans', label: 'Planes de Membresía' },
+      { value: 'memberships', label: 'Membresías' },
+      { value: 'membershipHistory', label: 'Historial de Membresías' },
+      { value: 'membershipPayments', label: 'Pagos de Membresías' },
+      { value: 'attendance', label: 'Asistencias' },
+      { value: 'trainers', label: 'Entrenadores' },
+      { value: 'physicalEvolutions', label: 'Evoluciones Físicas' },
+      { value: 'gymAssets', label: 'Activos del Gimnasio' },
+      { value: 'maintenance', label: 'Mantenimientos' },
       { value: 'all', label: 'Todos los datos' },
     ]
 

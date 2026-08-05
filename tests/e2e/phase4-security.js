@@ -127,22 +127,22 @@ async function runAll() {
     }))()
 
     // ══════════════════════════════════════════════
-    // X2: Stored XSS in customer address
+    // X2: Stored XSS in member address
     // ══════════════════════════════════════════════
 
-    await (test('X2 — Stored XSS in customer address is sanitized', async () => {
-      await openModule('customers')
+    await (test('X2 — Stored XSS in member address is sanitized', async () => {
+      await openModule('members')
       await wait(300)
-      await click('button:has-text("+ Nuevo Cliente")')
+      await click('button:has-text("+ Nuevo Miembro")')
       await waitFor('#field-name')
-      await fill('#field-name', 'XSS Customer')
+      await fill('#field-name', 'XSS Member')
       await fill('#field-documentId', 'SEC-XSS')
       const xssPayload = '"><script>window._xssSecAlert=true</script>'
       await fill('#field-address', xssPayload)
       await submitForm()
       await wait(500)
       const xssFired = await checkXssFired()
-      assert(!xssFired, 'XSS in customer address did not execute')
+      assert(!xssFired, 'XSS in member address did not execute')
 
       // Check table render
       const xssFired2 = await checkXssFired()

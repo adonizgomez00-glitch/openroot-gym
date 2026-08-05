@@ -1,56 +1,75 @@
-import { CustomerController } from '../../src/controllers/CustomerController.js'
-
-function createMockRepo() {
-  return {
-    async generateNextDocumentId() { return 'C006' }
-  }
-}
+import { GymAssetController } from '../../src/controllers/GymAssetController.js'
 
 function createMockService() {
-  let customers = []
+  let assets = []
   let nextId = 1
 
   return {
-    async getAll() { return [...customers] },
+    async getAll() { return [...assets] },
 
     async getById(id) {
-      const c = customers.find(x => x.id === id)
-      if (!c) throw new Error(`Cliente con id ${id} no encontrado`)
-      return { ...c }
+      const a = assets.find(x => x.id === id)
+      if (!a) throw new Error(`Activo con id ${id} no encontrado`)
+      return { ...a }
+    },
+
+    async getByCode(code) {
+      const a = assets.find(x => x.code === code)
+      if (!a) throw new Error(`Activo con código ${code} no encontrado`)
+      return { ...a }
+    },
+
+    async getByStatus(status) {
+      return assets.filter(a => a.status === status).map(a => ({ ...a }))
+    },
+
+    async getExpiringWarranty(days) {
+      return assets.filter(a => !!a.warrantyUntil).map(a => ({ ...a }))
     },
 
     async search(query) {
-      if (!query.trim()) return [...customers]
+      if (!query || !query.trim()) return [...assets]
       const lower = query.toLowerCase()
-      return customers.filter(c => c.name.toLowerCase().includes(lower))
+      return assets.filter(a =>
+        a.code?.toLowerCase().includes(lower) ||
+        a.name?.toLowerCase().includes(lower)
+      ).map(a => ({ ...a }))
     },
 
     async create(data) {
-      const c = { id: nextId++, ...data }
-      customers.push(c)
-      return { ...c }
+      const a = { id: nextId++, ...data }
+      assets.push(a)
+      return { ...a }
     },
 
     async update(id, data) {
-      const idx = customers.findIndex(x => x.id === id)
-      if (idx === -1) throw new Error(`Cliente con id ${id} no encontrado`)
-      customers[idx] = { ...customers[idx], ...data }
-      return { ...customers[idx] }
+      const idx = assets.findIndex(x => x.id === id)
+      if (idx === -1) throw new Error(`Activo con id ${id} no encontrado`)
+      assets[idx] = { ...assets[idx], ...data }
+      return { ...assets[idx] }
     },
 
     async delete(id) {
-      const idx = customers.findIndex(x => x.id === id)
-      if (idx === -1) throw new Error(`Cliente con id ${id} no encontrado`)
-      customers.splice(idx, 1)
+      const idx = assets.findIndex(x => x.id === id)
+      if (idx === -1) throw new Error(`Activo con id ${id} no encontrado`)
+      assets.splice(idx, 1)
       return true
-    }
+    },
+
+    async count() { return assets.length }
+  }
+}
+
+function createMockRepo() {
+  return {
+    async generateNextCode() { return 'Gym-0003' }
   }
 }
 
 function createMockView() {
   return {
     rendered: false,
-    customersData: null,
+    assetsData: null,
     errorMessage: null,
     successMessage: null,
     formOpened: false,
@@ -59,10 +78,11 @@ function createMockView() {
     savingState: false,
     loadingState: false,
     confirmed: true,
+    nextCode: '',
 
     reset() {
       this.rendered = false
-      this.customersData = null
+      this.assetsData = null
       this.errorMessage = null
       this.successMessage = null
       this.formOpened = false
@@ -77,13 +97,13 @@ function createMockView() {
       this._container = container
     },
 
-    renderCustomers(customers) {
-      this.customersData = customers
+    renderAssets(assets) {
+      this.assetsData = assets
     },
 
-    showForm(entity, onSubmit, onCancel) {
+    showForm(asset, onSubmit, onCancel) {
       this.formOpened = true
-      this.formEntity = entity
+      this._asset = asset
       this._formSubmit = onSubmit
       this._formCancel = onCancel
     },
@@ -111,41 +131,42 @@ function assert(condition, message) {
   if (!condition) throw new Error(message || 'Assertion failed')
 }
 
-async function testInitLoadsCustomers() {
+async function testInitLoadsAssets() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  await service.create({ documentId: 'C001', name: 'Cliente 1' })
-  await service.create({ documentId: 'C002', name: 'Cliente 2' })
+  await service.create({ id: 1, code: 'Gym-0001', name: 'Caminadora', status: 'active' })
+  await service.create({ id: 2, code: 'Gym-0002', name: 'Bicicleta', status: 'maintenance' })
 
   const container = document.createElement('div')
   await controller.init(container)
 
   assert(view.rendered, 'init debería llamar a view.render')
-  assert(view.customersData !== null, 'init debería cargar clientes')
-  assert(view.customersData.length === 2, 'init debería cargar 2 clientes')
+  assert(view.assetsData !== null, 'init debería cargar activos')
+  assert(view.assetsData.length === 2, 'init debería cargar 2 activos')
 
-  console.log('  ✓ testInitLoadsCustomers')
+  console.log('  ✓ testInitLoadsAssets')
 }
 
 async function testHandleSearch() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  await service.create({ documentId: 'C001', name: 'Juan Pérez' })
-  await service.create({ documentId: 'C002', name: 'María García' })
+  await service.create({ id: 1, code: 'Gym-0001', name: 'Caminadora', status: 'active' })
+  await service.create({ id: 2, code: 'Gym-0002', name: 'Bicicleta', status: 'maintenance' })
 
   const container = document.createElement('div')
   await controller.init(container)
 
-  await controller.handleSearch('Juan')
-  assert(view.customersData.length === 1, 'búsqueda debería filtrar a 1 cliente')
-  assert(view.customersData[0].name === 'Juan Pérez', 'búsqueda debería encontrar Juan')
+  await controller.handleSearch('Caminadora')
+  assert(view.assetsData.length === 1, 'búsqueda debería filtrar a 1 activo')
 
   await controller.handleSearch('')
-  assert(view.customersData.length === 2, 'búsqueda vacía debería retornar todos')
+  assert(view.assetsData.length === 2, 'búsqueda vacía debería retornar todos')
 
   console.log('  ✓ testHandleSearch')
 }
@@ -153,20 +174,20 @@ async function testHandleSearch() {
 async function testHandleCreate() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
   const container = document.createElement('div')
   await controller.init(container)
 
   await controller.showCreateForm()
   assert(view.formOpened, 'showCreateForm debería abrir formulario')
-  assert(view.formEntity === null, 'showCreateForm debería pasar null')
 
-  await view._formSubmit({ documentId: 'C001', name: 'Nuevo Cliente', email: 'cliente@email.com' })
+  await view._formSubmit({ code: 'Gym-0003', name: 'Nuevo Activo', type: 'Cardio' })
 
   assert(view.successMessage !== null, 'handleSave debería mostrar éxito')
   assert(view.formClosed, 'handleSave debería cerrar formulario')
-  assert(view.customersData.length === 1, 'handleSave debería recargar lista')
+  assert(view.assetsData.length === 1, 'handleSave debería recargar lista')
 
   console.log('  ✓ testHandleCreate')
 }
@@ -174,20 +195,20 @@ async function testHandleCreate() {
 async function testHandleUpdate() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  await service.create({ documentId: 'C001', name: 'Original' })
+  await service.create({ id: 1, code: 'Gym-0001', name: 'Original' })
 
   const container = document.createElement('div')
   await controller.init(container)
 
   await controller.showEditForm(1)
   assert(view.formOpened, 'showEditForm debería abrir formulario')
-  assert(view.formEntity !== null, 'showEditForm debería pasar el cliente')
 
-  await view._formSubmit({ documentId: 'C001', name: 'Actualizado' })
+  await view._formSubmit({ code: 'Gym-0001', name: 'Actualizado', type: 'Fuerza' })
 
-  assert(view.successMessage?.includes('actualizado'), 'update debería mostrar mensaje de actualización')
+  assert(view.successMessage !== null, 'update debería mostrar éxito')
   const updated = await service.getById(1)
   assert(updated.name === 'Actualizado', 'update debería cambiar el nombre')
 
@@ -197,9 +218,10 @@ async function testHandleUpdate() {
 async function testHandleDelete() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  await service.create({ documentId: 'C001', name: 'A eliminar' })
+  await service.create({ id: 1, code: 'Gym-0001', name: 'Activo a eliminar' })
 
   const container = document.createElement('div')
   await controller.init(container)
@@ -209,7 +231,7 @@ async function testHandleDelete() {
 
   assert(view.successMessage !== null, 'delete debería mostrar éxito')
   const all = await service.getAll()
-  assert(all.length === 0, 'delete debería eliminar el cliente')
+  assert(all.length === 0, 'delete debería eliminar el activo')
 
   console.log('  ✓ testHandleDelete')
 }
@@ -217,9 +239,10 @@ async function testHandleDelete() {
 async function testHandleDeleteCancelled() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  await service.create({ documentId: 'C001', name: 'A eliminar' })
+  await service.create({ id: 1, code: 'Gym-0001', name: 'A eliminar' })
 
   const container = document.createElement('div')
   await controller.init(container)
@@ -239,14 +262,15 @@ async function testHandleDeleteCancelled() {
 async function testInitLoadError() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  service.getAll = async () => { throw new Error('Error al cargar clientes') }
+  service.getAll = async () => { throw new Error('Error al cargar activos') }
 
   const container = document.createElement('div')
   await controller.init(container)
 
-  assert(view.errorMessage === 'Error al cargar clientes', 'init debería mostrar error si falla carga')
+  assert(view.errorMessage === 'Error al cargar activos', 'init debería mostrar error si falla carga')
 
   console.log('  ✓ testInitLoadError')
 }
@@ -254,16 +278,16 @@ async function testInitLoadError() {
 async function testShowEditFormError() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
+
+  service.getById = async () => { throw new Error('Error al obtener activo') }
 
   const container = document.createElement('div')
   await controller.init(container)
 
-  service.getById = async () => { throw new Error('Error al obtener cliente') }
-  view.reset()
-
   await controller.showEditForm(999)
-  assert(view.errorMessage === 'Error al obtener cliente', 'showEditForm debería mostrar error')
+  assert(view.errorMessage === 'Error al obtener activo', 'showEditForm debería mostrar error')
 
   console.log('  ✓ testShowEditFormError')
 }
@@ -271,17 +295,18 @@ async function testShowEditFormError() {
 async function testHandleSaveCreateError() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  service.create = async () => { throw new Error('Error al crear cliente') }
+  service.create = async () => { throw new Error('Error al crear activo') }
 
   const container = document.createElement('div')
   await controller.init(container)
 
   await controller.showCreateForm()
-  await view._formSubmit({ documentId: 'C001', name: 'Nuevo' })
+  await view._formSubmit({ code: 'Gym-0003', name: 'Nuevo' })
 
-  assert(view.errorMessage === 'Error al crear cliente', 'handleSave create debería mostrar error')
+  assert(view.errorMessage === 'Error al crear activo', 'handleSave create debería mostrar error')
 
   console.log('  ✓ testHandleSaveCreateError')
 }
@@ -289,19 +314,20 @@ async function testHandleSaveCreateError() {
 async function testHandleSaveUpdateError() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  await service.create({ documentId: 'C001', name: 'Original' })
-  service.update = async () => { throw new Error('Error al actualizar cliente') }
+  await service.create({ id: 1, code: 'Gym-0001', name: 'Original' })
+  service.update = async () => { throw new Error('Error al actualizar activo') }
 
   const container = document.createElement('div')
   await controller.init(container)
 
   await controller.showEditForm(1)
   view.reset()
-  await view._formSubmit({ documentId: 'C001', name: 'Actualizado' })
+  await view._formSubmit({ code: 'Gym-0001', name: 'Actualizado' })
 
-  assert(view.errorMessage === 'Error al actualizar cliente', 'handleSave update debería mostrar error')
+  assert(view.errorMessage === 'Error al actualizar activo', 'handleSave update debería mostrar error')
 
   console.log('  ✓ testHandleSaveUpdateError')
 }
@@ -309,10 +335,11 @@ async function testHandleSaveUpdateError() {
 async function testHandleDeleteError() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
-  await service.create({ documentId: 'C001', name: 'A eliminar' })
-  service.delete = async () => { throw new Error('Error al eliminar cliente') }
+  await service.create({ id: 1, code: 'Gym-0001', name: 'A eliminar' })
+  service.delete = async () => { throw new Error('Error al eliminar activo') }
 
   const container = document.createElement('div')
   await controller.init(container)
@@ -320,7 +347,7 @@ async function testHandleDeleteError() {
   view.confirmed = true
   await controller.handleDelete(1)
 
-  assert(view.errorMessage === 'Error al eliminar cliente', 'handleDelete debería mostrar error')
+  assert(view.errorMessage === 'Error al eliminar activo', 'handleDelete debería mostrar error')
 
   console.log('  ✓ testHandleDeleteError')
 }
@@ -328,7 +355,8 @@ async function testHandleDeleteError() {
 async function testHandleSearchError() {
   const service = createMockService()
   const view = createMockView()
-  const controller = new CustomerController(service, view, createMockRepo())
+  const repo = createMockRepo()
+  const controller = new GymAssetController(service, view, repo)
 
   service.search = async () => { throw new Error('Error de búsqueda') }
 
@@ -342,10 +370,10 @@ async function testHandleSearchError() {
   console.log('  ✓ testHandleSearchError')
 }
 
-export async function runCustomerControllerTests() {
-  console.log('\n--- CustomerController Tests ---\n')
+export async function runGymAssetControllerTests() {
+  console.log('\n--- GymAssetController Tests ---\n')
 
-  await testInitLoadsCustomers()
+  await testInitLoadsAssets()
   await testHandleSearch()
   await testHandleCreate()
   await testHandleUpdate()
@@ -358,5 +386,5 @@ export async function runCustomerControllerTests() {
   await testHandleDeleteError()
   await testHandleSearchError()
 
-  console.log('\n✓ Todos los tests de CustomerController pasaron\n')
+  console.log('\n✓ Todos los tests de GymAssetController pasaron\n')
 }

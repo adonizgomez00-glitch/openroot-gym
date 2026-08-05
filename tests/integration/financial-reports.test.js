@@ -2,7 +2,7 @@ import { SaleService } from '../../src/services/SaleService.js'
 import { PurchaseService } from '../../src/services/PurchaseService.js'
 import { AccountingService } from '../../src/services/AccountingService.js'
 import { getTaxRate, setTaxRate } from '../../src/utils/formatters.js'
-import { assert, createMockDB, seedAccounts, seedProduct, seedCustomer, seedSupplier } from './helpers.js'
+import { assert, createMockDB, seedAccounts, seedProduct, seedMember, seedSupplier } from './helpers.js'
 
 export async function runFinancialReportsTests() {
   setTaxRate(0.12)
@@ -10,7 +10,7 @@ export async function runFinancialReportsTests() {
   const db = createMockDB()
   await seedAccounts(db)
   const product = await seedProduct(db, { id: 100, purchasePrice: 50, salePrice: 100, stock: 50 })
-  const customer = await seedCustomer(db)
+  const customer = await seedMember(db)
   const supplier = await seedSupplier(db)
 
   // Shared repos (product, customer, supplier, inventory)
@@ -19,7 +19,7 @@ export async function runFinancialReportsTests() {
     async update(id, changes) { await db.products.update(id, changes); return this.findById(id) },
     async findAll() { return (await db.products.toArray()).map(d => ({ ...d })) }
   }
-  const customerRepo = { async findById(id) { const d = await db.customers.get(id); return d ? { ...d } : null } }
+  const memberRepo = { async findById(id) { const d = await db.members.get(id); return d ? { ...d } : null } }
   const supplierRepo = { async findById(id) { const d = await db.suppliers.get(id); return d ? { ...d } : null } }
   const inventoryRepo = {
     async getStockByProduct(productId) {
@@ -53,7 +53,7 @@ export async function runFinancialReportsTests() {
     },
     async count() { return db.sales.count() }
   }
-  const saleService = new SaleService(db, saleRepo, productRepo, customerRepo, inventoryRepo)
+  const saleService = new SaleService(db, saleRepo, productRepo, memberRepo, inventoryRepo)
 
   // Purchase repo
   let purchaseIdCounter = 300
@@ -123,7 +123,7 @@ export async function runFinancialReportsTests() {
 
   // Step 2: Create a sale (sell 3 units at 100 = 300 subtotal, 36 tax, 336 total)
   const sale = await saleService.createSale(
-    { customerId: customer.id, customerName: customer.name },
+    { memberId: customer.id, memberName: customer.name },
     [{ productId: product.id, quantity: 3, unitPrice: 100 }]
   )
   // COGS = 3 * 100 (salePrice, not purchasePrice — current AccountingService behavior)

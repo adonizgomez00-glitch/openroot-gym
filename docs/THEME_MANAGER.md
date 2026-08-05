@@ -18,7 +18,7 @@
 
 ## Almacenamiento
 
-La preferencia se guarda en `localStorage` bajo la clave `open-rooterp-theme`.
+La preferencia se guarda en `localStorage` bajo la clave `openroot-gym-theme`.
 
 ## Aplicación
 

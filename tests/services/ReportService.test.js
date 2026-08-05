@@ -45,12 +45,64 @@ function createMocks() {
     async count() { return 3 }
   }
 
+  const membershipRepo = {
+    async findAll() { return memberships },
+    async findByDateRange(start, end) { return memberships.filter(m => m.startDate >= start && m.startDate <= end) },
+    async count() { return memberships.length }
+  }
+
+  const membershipPaymentRepo = {
+    async findByDateRange(start, end) { return membershipPayments.filter(p => p.date >= start && p.date <= end) }
+  }
+
   const inventoryRepo = {
     stocks: { 1: 10, 2: 2, 3: 0 },
     async getStockByProduct(id) { return this.stocks[id] || 0 }
   }
 
-  return { saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, sales, purchases, products }
+  const memberships = [
+    { id: 1, startDate: '2026-07-01', endDate: '2026-08-01', status: 'active', price: 5000, memberId: 'M001' },
+    { id: 2, startDate: '2026-07-15', endDate: '2026-08-15', status: 'expired', price: 3000, memberId: 'M002' }
+  ]
+
+  const membershipPayments = [
+    { id: 1, date: '2026-07-01', amount: 5000, method: 'cash', membershipId: 1 },
+    { id: 2, date: '2026-07-15', amount: 3000, method: 'card', membershipId: 2 }
+  ]
+
+  const attendanceRepo = {
+    async findByDateRange(start, end) {
+      return [
+        { id: 1, memberId: 'M001', date: '2026-07-01', time: '08:00' },
+        { id: 2, memberId: 'M002', date: '2026-07-02', time: '09:00' }
+      ].filter(a => a.date >= start && a.date <= end)
+    }
+  }
+
+  const trainerRepo = {
+    async findAll() { return [{ documentId: 'D001', name: 'Trainer 1', email: 't1@test.com', specialty: 'Fuerza', active: true }] },
+    async count() { return 1 }
+  }
+
+  const physicalEvolutionRepo = {
+    async count() { return 0 }
+  }
+
+  const gymAssetRepo = {
+    async findAll() { return [{ code: 'A001', name: 'Asset 1', type: 'Cardio', brand: 'Brand', model: 'M1', purchasePrice: 1000, status: 'active', location: 'Sala A' }] },
+    async count() { return 1 }
+  }
+
+  const maintenanceRepo = {
+    async findByDateRange(start, end) {
+      return [
+        { id: 1, assetId: 1, date: '2026-07-01', type: 'Preventivo', cost: 500, description: 'Test', nextDate: '2026-08-01', status: 'completed' }
+      ].filter(m => m.date >= start && m.date <= end)
+    },
+    async count() { return 1 }
+  }
+
+  return { saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, sales, purchases, products, membershipRepo, membershipPaymentRepo, attendanceRepo, trainerRepo, physicalEvolutionRepo, gymAssetRepo, maintenanceRepo }
 }
 
 function assert(condition, message) {
@@ -59,7 +111,7 @@ function assert(condition, message) {
 
 async function testGetSalesReport() {
   const mocks = createMocks()
-  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo)
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
 
   const report = await service.getSalesReport('2026-07-01', '2026-07-31')
 
@@ -74,7 +126,7 @@ async function testGetSalesReport() {
 
 async function testGetSalesReportEmpty() {
   const mocks = createMocks()
-  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo)
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
 
   const report = await service.getSalesReport('2025-01-01', '2025-01-31')
 
@@ -86,7 +138,7 @@ async function testGetSalesReportEmpty() {
 
 async function testGetPurchasesReport() {
   const mocks = createMocks()
-  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo)
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
 
   const report = await service.getPurchasesReport('2026-07-01', '2026-07-31')
 
@@ -101,7 +153,7 @@ async function testGetPurchasesReport() {
 
 async function testGetStockReport() {
   const mocks = createMocks()
-  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo)
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
 
   const report = await service.getStockReport()
 
@@ -139,17 +191,91 @@ async function testGetStockStatus() {
 
 async function testGetSummary() {
   const mocks = createMocks()
-  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo)
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
 
   const summary = await service.getSummary()
 
   assert(summary.products === 3, 'products debería ser 3')
-  assert(summary.customers === 5, 'customers debería ser 5')
+  assert(summary.members === 5, 'customers debería ser 5')
   assert(summary.suppliers === 3, 'suppliers debería ser 3')
   assert(summary.sales === 3, 'sales debería ser 3')
   assert(summary.purchases === 2, 'purchases debería ser 2')
+  assert(summary.trainers === 1, 'trainers debería ser 1')
+  assert(summary.gymAssets === 1, 'gymAssets debería ser 1')
+  assert(summary.maintenance === 1, 'maintenance debería ser 1')
 
   console.log('  ✓ testGetSummary')
+}
+
+async function testGetTrainersReport() {
+  const mocks = createMocks()
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
+
+  const report = await service.getTrainersReport()
+
+  assert(report.items.length === 1, 'getTrainersReport debería retornar 1 entrenador')
+  assert(report.summary.total === 1, 'total debería ser 1')
+  assert(report.summary.active === 1, 'active debería ser 1')
+  assert(report.summary.inactive === 0, 'inactive debería ser 0')
+  assert(report.summary.bySpecialty.Fuerza === 1, 'bySpecialty.Fuerza debería ser 1')
+
+  console.log('  ✓ testGetTrainersReport')
+}
+
+async function testGetGymAssetsReport() {
+  const mocks = createMocks()
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
+
+  const report = await service.getGymAssetsReport()
+
+  assert(report.items.length === 1, 'getGymAssetsReport debería retornar 1 activo')
+  assert(report.summary.total === 1, 'total debería ser 1')
+  assert(report.summary.active === 1, 'active debería ser 1')
+  assert(report.summary.totalValue === 1000, 'totalValue debería ser 1000')
+
+  console.log('  ✓ testGetGymAssetsReport')
+}
+
+async function testGetMaintenanceReport() {
+  const mocks = createMocks()
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
+
+  const report = await service.getMaintenanceReport('2026-07-01', '2026-07-31')
+
+  assert(report.items.length === 1, 'getMaintenanceReport debería retornar 1 mantenimiento')
+  assert(report.summary.total === 1, 'total debería ser 1')
+  assert(report.summary.completed === 1, 'completed debería ser 1')
+  assert(report.summary.totalCost === 500, 'totalCost debería ser 500')
+
+  console.log('  ✓ testGetMaintenanceReport')
+}
+
+async function testGetMembershipReport() {
+  const mocks = createMocks()
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
+
+  const report = await service.getMembershipReport('2026-07-01', '2026-07-31')
+
+  assert(report.items.length === 2, 'getMembershipReport debería retornar 2 membresías')
+  assert(report.summary.total === 2, 'total debería ser 2')
+  assert(report.summary.active === 1, 'active debería ser 1')
+  assert(report.summary.expired === 1, 'expired debería ser 1')
+  assert(report.summary.frozen === 0, 'frozen debería ser 0')
+  assert(report.summary.totalPayments === 8000, 'totalPayments debería ser 8000')
+
+  console.log('  ✓ testGetMembershipReport')
+}
+
+async function testGetAttendanceReport() {
+  const mocks = createMocks()
+  const service = new ReportService(mocks.saleRepo, mocks.purchaseRepo, mocks.productRepo, mocks.customerRepo, mocks.supplierRepo, mocks.inventoryRepo, mocks.membershipRepo, mocks.membershipPaymentRepo, mocks.attendanceRepo, mocks.trainerRepo, mocks.physicalEvolutionRepo, mocks.gymAssetRepo, mocks.maintenanceRepo)
+
+  const report = await service.getAttendanceReport('2026-07-01', '2026-07-31')
+
+  assert(report.items.length === 2, 'getAttendanceReport debería retornar 2 asistencias')
+  assert(report.summary.total === 2, 'total debería ser 2')
+
+  console.log('  ✓ testGetAttendanceReport')
 }
 
 export async function runReportServiceTests() {
@@ -161,6 +287,11 @@ export async function runReportServiceTests() {
   await testGetStockReport()
   await testGetStockStatus()
   await testGetSummary()
+  await testGetTrainersReport()
+  await testGetGymAssetsReport()
+  await testGetMaintenanceReport()
+  await testGetMembershipReport()
+  await testGetAttendanceReport()
 
   console.log('\n✓ Todos los tests de ReportService pasaron\n')
 }

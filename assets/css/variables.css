@@ -6,9 +6,9 @@
  */
 
 :root {
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-primary-light: #dbeafe;
+  --color-primary: #ea580c;
+  --color-primary-dark: #c2410c;
+  --color-primary-light: #ffedd5;
   --color-danger: #dc2626;
   --color-danger-light: #fef2f2;
   --color-success: #16a34a;
@@ -22,12 +22,12 @@
   --color-sidebar-bg: #1e293b;
   --color-sidebar-text: #cbd5e1;
   --color-sidebar-hover: #334155;
-  --color-sidebar-active: #2563eb;
+  --color-sidebar-active: #ea580c;
   --color-text: #1e293b;
   --color-text-secondary: #64748b;
   --color-border: #e2e8f0;
   --color-input-border: #7f94b0;
-  --color-input-focus: #2563eb;
+  --color-input-focus: #ea580c;
   --color-input-error: #dc2626;
   --color-muted: #64748b;
   --color-bg-secondary: #f1f5f9;
@@ -56,7 +56,7 @@
 }
 
 .theme-dark {
-  --color-primary-light: #1e3a5f;
+  --color-primary-light: #3a1e0d;
   --color-danger-light: #3b1a1a;
   --color-success-light: #1a3b2a;
   --color-warning-light: #3b2f1a;
@@ -70,7 +70,7 @@
   --color-text-secondary: #94a3b8;
   --color-border: #334155;
   --color-input-border: #8a9bb8;
-  --color-input-focus: #3b82f6;
+  --color-input-focus: #f97316;
   --color-input-error: #ef4444;
   --color-muted: #94a3b8;
   --color-bg-secondary: #1e293b;
@@ -94,7 +94,7 @@ body {
 }
 
 .theme-dark .auth-container {
-  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+    background: #3b1d0e;
 }
 
 .theme-dark .loader__message {

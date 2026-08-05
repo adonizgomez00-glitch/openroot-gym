@@ -1,15 +1,56 @@
 # Resumen de Continuidad — Open RootERP v1.0.0
 
-## Estado actual (Jul 16 2026)
+## PRÓXIMA TAREA — Mostrar nombres + autocompletado en Membresías/Asistencias
 
-**v1.0.0 — Primer lanzamiento público** — 76 escenarios E2E adversariales + 410+ unit/integration tests, 0 fallos. Todos los módulos planificados implementados, documentación completa.
+> Estado: **PLAN APROBADO, SIN IMPLEMENTAR**. El plan detallado está en
+> `docs/PLAN_MEMBRESIAS_ASISTENCIAS.md`. Retomar con esa tarea primero.
+
+**Qué pedido el usuario:**
+1. En el módulo de **Membresías** y en **Asistencias**, ver los **nombres de los
+   usuarios** en la tabla en vez de los IDs.
+2. Al **crear una nueva membresía o asistencia**, mostrar una lista de nombres
+   que se filtre **al escribir** (autocompletado) y que solo permita usar datos
+   existentes (dropdown tipo ventas/compras con clientes/proveedores).
+3. En **Planes de membresía**, mostrar el **ID** del plan en la tabla (hoy no se ve).
+
+**Hallazgos clave del diagnóstico (ya investigado):**
+- El vínculo real es `Membership.memberId` / `Attendance.memberId` →
+  `Member.id` (numérico). `documentId` ("M001") es solo etiqueta visible.
+- No existe join en `MembershipService.getAll()/search()` ni en
+  `AttendanceService.getAll()/search()` → las tablas muestran IDs crudos.
+- **No existe** componente de autocompletado; ventas/compras usan `<select>`
+  nativo estático (`SaleFormView.js:30-50`, `PurchaseFormView.js:36-61`).
+- `MembershipService.create()` no valida existencia de miembro/plan.
+- **Bug en seed**: `seed.js:128-132` usa `planMap['Plan Mensual']` pero el plan
+  real se llama `'Básico Mensual'` (línea 29) → 3 membresías con `planId: undefined`.
+- Los formularios usan `Form.js` genérico con `memberId`/`planId` de
+  `type:'number'` (input libre): `MembershipView.js:158-159`, `AttendanceView.js:130`.
+
+**Resumen del plan (ver archivo para detalle completo):**
+- Nuevo componente `src/components/Autocomplete.js` + soporte
+  `type:'autocomplete'` en `Form.js`.
+- Enriquecer servicios (`memberName`, `memberDocumentId`, `planName`) y cambiar
+  columnas en `MembershipView`/`AttendanceView`.
+- Columna `id` en `MembershipPlanView` (insertar antes de la columna Acciones,
+  línea ~89; el render de Acciones ya usa `row.id`, sin conflicto).
+- Pasar repos de miembros/planes a `MembershipController`/`AttendanceController`
+  y wire en `app.js` (`loadMemberships` ~465-473, `loadAttendance` ~494-501).
+- Validar existencia en `MembershipService.create()`; corregir `seed.js`;
+  estilos `.form__autocomplete` en `assets/css/`.
+- Verificar con `npm test` (59 suites) y manual en `http://localhost:3002`.
+
+---
+
+## Estado actual (2026-08-04)
+
+**OpenRoot Gym v1.0.0 — Primer lanzamiento** — 59 suites unit/integration (440+ tests) + 38 tests E2E + 76 tests QA adversariales, 0 fallos. Todos los módulos planificados implementados, documentación completa.
 
 ## Qué ya está implementado
 
 ### Arquitectura base
-- MVC + Repository + Service, 100 % offline, ES Modules, vanilla JS.
-- Dexie 4 como capa de IndexedDB con 8 versiones de schema (v4 añadió auth, v5 añadió contabilidad, v6 idéntica a v5, v7 migración renombres de cuentas, v8 añadió índices compuestos `[customerId+date]` en sales, `[supplierId+date]` en purchases, `[referenceType+referenceId]` en accountingEntries, `stock` en products).
-- Seed data: 10 productos, 5 clientes, 3 proveedores, 7 settings, 10 movimientos de inventario iniciales, 2 ventas, 2 compras, asientos contables.
+- MVC + Repository + Service, 100% offline, ES Modules, vanilla JS.
+- Dexie como capa de IndexedDB con schema v1 (16 tablas + plugins).
+- Seed data: 10 productos, 5 clientes, 3 proveedores, 7 settings, 10 movimientos de inventario iniciales.
 - `src/app.js` con router interno e inyección de dependencias manual.
 
 ### Módulos completos (con tests)
@@ -111,7 +152,7 @@
 
 ### Testing
 - Test runner con DOM shim en Node (`tests/run-all.js`).
-- 45 suites (36 unitarias + 9 de integración), 410+ tests, todos pasan.
+- 59 suites (36 unitarias + 9 de integración + 14 gimnasio), 440+ tests, todos pasan.
 - Cada test mockea repos e inyecta dependencias.
 
 ---
@@ -232,7 +273,8 @@
 - **`sw.js`**: 118 assets precargados, stale-while-revalidate, fallback offline para SPA, skipWaiting + clients.claim
 - **`manifest.json`**: display standalone, iconos SVG, scope "/"
 - **`index.html`**: registro automático, meta tags iOS/Android
-- **Scripts setup**: `setup.bat` (Windows) y `setup.sh` (Linux) con detección de Node.js, npm install, copia de Dexie, servidor HTTP local
+- **Scripts setup**: `setup.bat` (Windows) y `setup.sh` (Linux) con detección de Node.js, npm install, copia de Dexie, puerto libre persistente (`.openroot-port`), auto-inicio opcional y servidor HTTP local
+- **Scripts uninstall**: `uninstall.bat` (Windows) y `uninstall.sh` (Linux) — detienen servidor, remueven auto-inicio, limpian temporales; carpeta se elimina manualmente
 
 ## Debugging obligatorio
 
@@ -243,4 +285,4 @@ Prohibido corregir por prueba y error.
 
 ## Próximo objetivo
 
-Fases 1-5 completadas. Contabilidad Básica, Dashboard con gráficos Chart.js, Tests de Integración Import/Export, Auditoría de Seguridad y Optimización de Performance implementados. 45 suites de test, 410+ tests, 0 fallos. Próximo paso: Fase 6 — UX y Pulido (Temas claro/oscuro, Accesibilidad WCAG 2.1 AA).
+Fases F1-F12 completadas. 59 suites de test, 440+ tests, 0 fallos. Todos los módulos de OpenRoot Gym implementados (Miembros, Membresías, Asistencias, Entrenadores, Evolución Física, Activos, Mantenimiento, Reportes extendidos, Export/Import extendido).

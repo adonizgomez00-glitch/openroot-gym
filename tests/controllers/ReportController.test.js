@@ -27,6 +27,41 @@ function createMockService() {
         ],
         summary: { total: 1, ok: 1, low: 0, critical: 0 }
       }
+    },
+
+    async getMembershipsReport(start, end) {
+      return {
+        items: [{ id: 1, startDate: '2026-07-01', endDate: '2026-08-01', status: 'active', price: 5000 }],
+        summary: { total: 1, active: 1, expired: 0, frozen: 0, totalPayments: 1 }
+      }
+    },
+
+    async getAttendanceReport(start, end) {
+      return {
+        items: [{ id: 1, memberId: 'M001', date: '2026-07-01', time: '08:00' }],
+        summary: { total: 1 }
+      }
+    },
+
+    async getTrainersReport() {
+      return {
+        items: [{ documentId: 'D001', name: 'Trainer 1', email: 't1@test.com', specialty: 'Fuerza', active: true }],
+        summary: { total: 1, active: 1, inactive: 0, bySpecialty: { Fuerza: 1 } }
+      }
+    },
+
+    async getGymAssetsReport() {
+      return {
+        items: [{ code: 'A001', name: 'Asset 1', type: 'Cardio', brand: 'Brand', model: 'M1', purchasePrice: 1000, status: 'activo', location: 'Sala A' }],
+        summary: { total: 1, active: 1, maintenance: 0, retired: 0, totalValue: 1000 }
+      }
+    },
+
+    async getMaintenanceReport(start, end) {
+      return {
+        items: [{ assetId: 1, date: '2026-07-01', type: 'Preventivo', cost: 500, description: 'Test', nextDate: '2026-08-01', status: 'completado' }],
+        summary: { total: 1, pending: 0, inProgress: 0, completed: 1, cancelled: 0, totalCost: 500 }
+      }
     }
   }
 }
@@ -66,6 +101,11 @@ function createMockView() {
     renderSalesReport(report) { this.lastRendered = 'sales' },
     renderPurchasesReport(report) { this.lastRendered = 'purchases' },
     renderStockReport(report) { this.lastRendered = 'stock' },
+    renderMembershipsReport(report) { this.lastRendered = 'memberships' },
+    renderAttendanceReport(report) { this.lastRendered = 'attendance' },
+    renderTrainersReport(report) { this.lastRendered = 'trainers' },
+    renderGymAssetsReport(report) { this.lastRendered = 'gymAssets' },
+    renderMaintenanceReport(report) { this.lastRendered = 'maintenance' },
 
     showLoading() { this.loadingState = true },
     hideLoading() { this.loadingState = false },
@@ -162,6 +202,60 @@ async function testGenerateStockReport() {
   console.log('  ✓ testGenerateStockReport')
 }
 
+async function testTabChangeToTrainers() {
+  const service = createMockService()
+  const view = createMockView()
+  const controller = new ReportController(service, view)
+
+  const container = document.createElement('div')
+  await controller.init(container)
+
+  view.reset()
+  await controller.handleTabChange('trainers')
+
+  assert(view.activeTab === 'trainers', 'handleTabChange debería activar tab trainers')
+  assert(view.dateInputsVisible === false, 'trainers tab debería ocultar date inputs')
+  assert(view.lastRendered === 'trainers', 'trainers tab debería cargar reporte de entrenadores')
+
+  console.log('  ✓ testTabChangeToTrainers')
+}
+
+async function testTabChangeToGymAssets() {
+  const service = createMockService()
+  const view = createMockView()
+  const controller = new ReportController(service, view)
+
+  const container = document.createElement('div')
+  await controller.init(container)
+
+  view.reset()
+  await controller.handleTabChange('gymAssets')
+
+  assert(view.activeTab === 'gymAssets', 'handleTabChange debería activar tab gymAssets')
+  assert(view.dateInputsVisible === false, 'gymAssets tab debería ocultar date inputs')
+  assert(view.lastRendered === 'gymAssets', 'gymAssets tab debería cargar reporte de activos')
+
+  console.log('  ✓ testTabChangeToGymAssets')
+}
+
+async function testTabChangeToMaintenance() {
+  const service = createMockService()
+  const view = createMockView()
+  const controller = new ReportController(service, view)
+
+  const container = document.createElement('div')
+  await controller.init(container)
+
+  view.reset()
+  await controller.handleTabChange('maintenance')
+
+  assert(view.activeTab === 'maintenance', 'handleTabChange debería activar tab maintenance')
+  assert(view.dateInputsVisible === true, 'maintenance tab debería mostrar date inputs')
+  assert(view.lastRendered === 'maintenance', 'maintenance tab debería cargar reporte de mantenimiento')
+
+  console.log('  ✓ testTabChangeToMaintenance')
+}
+
 async function testHandleTabChangeError() {
   const service = createMockService()
   const view = createMockView()
@@ -203,6 +297,9 @@ export async function runReportControllerTests() {
   await testGenerateSalesReport()
   await testGeneratePurchasesReport()
   await testGenerateStockReport()
+  await testTabChangeToTrainers()
+  await testTabChangeToGymAssets()
+  await testTabChangeToMaintenance()
   await testHandleTabChangeError()
   await testHandleGenerateReportError()
 

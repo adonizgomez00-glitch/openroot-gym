@@ -68,7 +68,7 @@ function createMocks() {
   const customerRepo = {
     async findById(id) {
       if (id === 999) return null
-      return { id, name: 'Cliente Test', documentId: 'C001' }
+      return { id, name: 'Miembro Test', documentId: 'C001' }
     }
   }
 
@@ -132,8 +132,8 @@ async function testCreateSaleWithoutCustomer() {
     [{ productId: 1, quantity: 1, unitPrice: 100 }]
   )
 
-  assert(result !== null, 'createSale sin cliente debería funcionar')
-  assert(result.customerName === '', 'Sin cliente, customerName vacío')
+  assert(result !== null, 'createSale sin miembro debería funcionar')
+  assert(result.customerName === '', 'Sin miembro, customerName vacío')
 
   console.log('  ✓ testCreateSaleWithoutCustomer')
 }
@@ -160,7 +160,7 @@ async function testCreateSaleInvalidCustomer() {
     await service.createSale({ customerId: 999 }, [{ productId: 1, quantity: 1 }])
     assert(false, 'createSale con customer inválido debería lanzar error')
   } catch (error) {
-    assert(error.message.includes('Cliente'), 'Error debería mencionar cliente')
+    assert(error.message.includes('Miembro'), 'Error debería mencionar miembro')
   }
 
   console.log('  ✓ testCreateSaleInvalidCustomer')

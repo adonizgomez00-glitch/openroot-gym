@@ -1,4 +1,5 @@
 import { Modal } from '../components/Modal.js'
+import { Combobox } from '../components/Combobox.js'
 import { Toast } from '../components/Toast.js'
 import { formatCurrency, getTaxRate } from '../utils/formatters.js'
 
@@ -41,22 +42,12 @@ export class PurchaseFormView {
     label.className = 'purchase-form__label'
     label.textContent = 'Proveedor'
 
-    this._supplierSelect = document.createElement('select')
-    this._supplierSelect.className = 'purchase-form__select'
+    const options = suppliers.map(s => ({ value: s.id, label: `${s.name} (${s.documentId})` }))
+    this._supplierCombobox = new Combobox({ options, placeholder: 'Buscar proveedor...' })
+    const comboboxEl = this._supplierCombobox.render()
+    comboboxEl.classList.add('purchase-form__combobox')
 
-    const empty = document.createElement('option')
-    empty.value = ''
-    empty.textContent = 'Seleccione un proveedor...'
-    this._supplierSelect.appendChild(empty)
-
-    suppliers.forEach(s => {
-      const opt = document.createElement('option')
-      opt.value = s.id
-      opt.textContent = `${s.name} (${s.documentId})`
-      this._supplierSelect.appendChild(opt)
-    })
-
-    group.append(label, this._supplierSelect)
+    group.append(label, comboboxEl)
     return group
   }
 
@@ -275,10 +266,12 @@ export class PurchaseFormView {
   _submit() {
     if (this._cart.length === 0) { Toast.warning('Agregue al menos un producto'); return }
 
-    const supplierId = this._supplierSelect.value ? Number(this._supplierSelect.value) : null
+    const supplierValue = this._supplierCombobox.getValue()
+    const supplierId = (supplierValue === '' || supplierValue === null || supplierValue === undefined) ? null : Number(supplierValue)
     let supplierName = ''
-    if (supplierId && this._supplierSelect.selectedOptions[0]) {
-      supplierName = this._supplierSelect.selectedOptions[0].textContent.split(' (')[0]
+    if (supplierId) {
+      const label = this._supplierCombobox.getLabel() || ''
+      supplierName = label.split(' (')[0]
     }
 
     if (this._onSubmit) {

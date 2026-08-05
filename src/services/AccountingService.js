@@ -280,6 +280,25 @@ export class AccountingService {
     return income - expenses
   }
 
+  async createMembershipEntry(payment, member) {
+    await this._loadAccounts()
+    const cash = await this._getOrFindAccount(CASH_ACCOUNT_CODE)
+    const sales = await this._getOrFindAccount(SALES_ACCOUNT_CODE)
+
+    const entryItems = [
+      { accountId: cash.id, accountCode: cash.code, accountName: cash.name, debit: payment.amount, credit: 0 },
+      { accountId: sales.id, accountCode: sales.code, accountName: sales.name, debit: 0, credit: payment.amount }
+    ]
+
+    return this._repo.createEntry({
+      date: payment.date || new Date().toISOString(),
+      description: `Pago membresía - ${member?.name || 'Miembro'}`,
+      referenceType: 'membership',
+      referenceId: payment.id,
+      items: entryItems
+    })
+  }
+
   async deleteEntryByReference(referenceType, referenceId) {
     const entries = await this._repo.findEntriesByReference(referenceType, referenceId)
     for (const entry of entries) {

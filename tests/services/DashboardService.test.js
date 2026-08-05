@@ -26,6 +26,15 @@ function createMockRepo(overrides = {}) {
   }
 }
 
+function createMockMembershipRepo(overrides = {}) {
+  return {
+    findExpiringSoon: overrides.findExpiringSoon || (async (days) => []),
+    findByDateRange: overrides.findByDateRange || (async (start, end) => []),
+
+    ...overrides
+  }
+}
+
 function assert(condition, message) {
   if (!condition) throw new Error(message || 'Assertion failed')
 }
@@ -38,7 +47,16 @@ async function testGetKPIsReturnsAllKeys() {
   const supplierRepo = createMockRepo()
   const inventoryRepo = createMockRepo()
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
 
@@ -47,10 +65,14 @@ async function testGetKPIsReturnsAllKeys() {
   assert(typeof kpis.monthPurchases === 'number', 'monthPurchases debería ser número')
   assert(typeof kpis.monthPurchasesTotal === 'number', 'monthPurchasesTotal debería ser número')
   assert(typeof kpis.totalProducts === 'number', 'totalProducts debería ser número')
-  assert(typeof kpis.totalCustomers === 'number', 'totalCustomers debería ser número')
+  assert(typeof kpis.totalMembers === 'number', 'totalMembers debería ser número')
   assert(typeof kpis.totalSuppliers === 'number', 'totalSuppliers debería ser número')
   assert(typeof kpis.lowStock === 'number', 'lowStock debería ser número')
   assert(typeof kpis.criticalStock === 'number', 'criticalStock debería ser número')
+  assert(typeof kpis.membershipsExpiring === 'number', 'membershipsExpiring debería ser número')
+  assert(typeof kpis.todayMembershipRevenue === 'number', 'todayMembershipRevenue debería ser número')
+  assert(typeof kpis.monthMembershipRevenue === 'number', 'monthMembershipRevenue debería ser número')
+  assert(typeof kpis.attendanceToday === 'number', 'attendanceToday debería ser número')
 
   console.log('  ✓ testGetKPIsReturnsAllKeys')
 }
@@ -89,7 +111,16 @@ async function testGetKPIsWithSalesToday() {
     getStockByProduct: async () => 10
   })
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
 
@@ -120,7 +151,16 @@ async function testGetKPIsWithMonthPurchases() {
   const supplierRepo = createMockRepo()
   const inventoryRepo = createMockRepo()
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
 
@@ -148,7 +188,16 @@ async function testGetKPIsCounts() {
     getStockByProduct: async (id) => id === 2 ? 2 : 10
   })
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
 
@@ -166,10 +215,19 @@ async function testGetKPIsAllCounts() {
   const supplierRepo = createMockRepo()
   const inventoryRepo = createMockRepo()
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
-  assert(kpis.totalCustomers === 5, 'totalCustomers debería ser 5')
+  assert(kpis.totalMembers === 5, 'totalMembers debería ser 5')
   assert(kpis.totalSuppliers === 5, 'totalSuppliers debería ser 5')
 
   console.log('  \u2713 testGetKPIsAllCounts')
@@ -194,7 +252,16 @@ async function testGetKPIsCriticalStock() {
     }
   })
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
   assert(kpis.criticalStock === 1, 'criticalStock debería ser 1 (producto 1 con stock 0 y stockMin > 0)')
@@ -216,7 +283,16 @@ async function testGetKPIsNoCompletedSales() {
   const supplierRepo = createMockRepo()
   const inventoryRepo = createMockRepo()
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
   assert(kpis.todaySales === 0, 'todaySales debería ser 0 si todas están canceladas')
@@ -237,7 +313,16 @@ async function testGetKPIsNoCompletedPurchases() {
   const supplierRepo = createMockRepo()
   const inventoryRepo = createMockRepo()
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
   assert(kpis.monthPurchases === 0, 'monthPurchases debería ser 0 si todas están canceladas')
@@ -254,7 +339,16 @@ async function testGetKPIsWithNoProducts() {
   const supplierRepo = createMockRepo()
   const inventoryRepo = createMockRepo()
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
   assert(kpis.totalProducts === 0, 'totalProducts debería ser 0')
@@ -282,13 +376,75 @@ async function testGetKPIsLowStockBoundary() {
     }
   })
 
-  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo)
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+  const attendanceRepo = createMockMembershipRepo({
+    findByDateRange: async () => []
+  })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
 
   const kpis = await service.getKPIs()
   assert(kpis.lowStock === 1, 'lowStock debería ser 1 (producto 1 con stock === stockMin)')
   assert(kpis.totalProducts === 2, 'totalProducts debería ser 2')
 
   console.log('  \u2713 testGetKPIsLowStockBoundary')
+}
+
+async function testGetKPIsMembershipExpiring() {
+  const saleRepo = createMockRepo({ findByDateRange: async () => [] })
+  const purchaseRepo = createMockRepo({ findByDateRange: async () => [] })
+  const productRepo = createMockRepo({ findAll: async () => [] })
+  const customerRepo = createMockRepo()
+  const supplierRepo = createMockRepo()
+  const inventoryRepo = createMockRepo()
+
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo({
+    findExpiringSoon: async (days) => [
+      { id: 1, memberId: 1, planId: 1, endDate: '2026-08-10', status: 'active' },
+      { id: 2, memberId: 2, planId: 1, endDate: '2026-08-05', status: 'active' }
+    ]
+  })
+  const membershipPaymentRepo = createMockMembershipRepo({ findByDateRange: async () => [] })
+  const attendanceRepo = createMockMembershipRepo({ findByDateRange: async () => [] })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
+
+  const kpis = await service.getKPIs()
+  assert(kpis.membershipsExpiring === 2, 'membershipsExpiring debería ser 2')
+
+  console.log('  ✓ testGetKPIsMembershipExpiring')
+}
+
+async function testGetKPIsMembershipRevenue() {
+  const saleRepo = createMockRepo({ findByDateRange: async () => [] })
+  const purchaseRepo = createMockRepo({ findByDateRange: async () => [] })
+  const productRepo = createMockRepo({ findAll: async () => [] })
+  const customerRepo = createMockRepo()
+  const supplierRepo = createMockRepo()
+  const inventoryRepo = createMockRepo()
+
+  const membershipPlanRepo = createMockMembershipRepo()
+  const membershipRepo = createMockMembershipRepo()
+  const membershipPaymentRepo = createMockMembershipRepo({
+    findByDateRange: async (start, end) => [
+      { amount: 150, method: 'cash', date: '2026-08-04' },
+      { amount: 200, method: 'card', date: '2026-08-04' }
+    ]
+  })
+  const attendanceRepo = createMockMembershipRepo({ findByDateRange: async () => [] })
+
+  const service = new DashboardService(saleRepo, purchaseRepo, productRepo, customerRepo, supplierRepo, inventoryRepo, membershipPlanRepo, membershipRepo, membershipPaymentRepo, attendanceRepo)
+
+  const kpis = await service.getKPIs()
+  assert(kpis.todayMembershipRevenue === 350, 'todayMembershipRevenue debería ser 350 (150+200)')
+  assert(kpis.monthMembershipRevenue === 350, 'monthMembershipRevenue debería ser 350 (misma data mock)')
+
+  console.log('  ✓ testGetKPIsMembershipRevenue')
 }
 
 export async function runDashboardServiceTests() {
@@ -304,6 +460,8 @@ export async function runDashboardServiceTests() {
   await testGetKPIsNoCompletedPurchases()
   await testGetKPIsWithNoProducts()
   await testGetKPIsLowStockBoundary()
+  await testGetKPIsMembershipExpiring()
+  await testGetKPIsMembershipRevenue()
 
   console.log('\n\u2713 Todos los tests de DashboardService pasaron\n')
 }

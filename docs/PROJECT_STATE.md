@@ -6,7 +6,7 @@ ERP funcional con 14 módulos completos (Productos, Clientes, Inventario, Ventas
 Arquitectura MVC con Repository + Service.  
 100 % offline, zero frameworks. ES Modules. IndexedDB vía Dexie.
 
-Última verificación: **45 suites unit/integration · 410+ tests · 0 fallos + 38 tests E2E · 0 fallos**.
+Última verificación: **59 suites unit/integration · 440+ tests · 0 fallos + 38 tests E2E · 0 fallos**.
 
 ---
 
@@ -56,7 +56,19 @@ Dexie / IndexedDB
 | Autenticación | 5 servicios | 2 controllers | 2 views | 5 service + 2 controller |
 | Usuarios | — | `UserController` (7 métodos) | `UserView` (showForm + tabla CRUD) | 7 controller |
 | Contabilidad | `AccountingService` (17 métodos) | `AccountingController` (7 métodos) | `AccountingView` + 4 sub-vistas (Accounts, Journal, Balance, Income) | 12 service + 12 controller |
-| **Integración** | — | — | — | **9 suites · 54+ tests** |
+| **Gimnasio** | | | | |
+| Miembros | `MemberService` (CRUD+search) | `MemberController` | `MemberView` (CRUD, search, tabla) | 7 service + 6 controller |
+| Planes de Membresía | `MembershipPlanService` (CRUD) | `MembershipPlanController` | `MembershipPlanView` (CRUD, tabla) | 6 service + 6 controller |
+| Membresías | `MembershipService` (CRUD+renew+freeze+expire) | `MembershipController` | `MembershipView` (CRUD, tabla) | 6 service + 6 controller |
+| Historial Membresías | `MembershipHistoryService` (CRUD) | `MembershipHistoryController` | `MembershipHistoryView` | 5 service + 5 controller |
+| Pagos Membresías | `MembershipPaymentService` (CRUD) | `MembershipPaymentController` | `MembershipPaymentView` | 5 service + 5 controller |
+| Asistencias | `AttendanceService` (checkIn, findByMember, findByDateRange) | `AttendanceController` | `AttendanceView` | 5 service + 5 controller |
+| Entrenadores | `TrainerService` (CRUD+search, generateNextCode) | `TrainerController` | `TrainerView` (CRUD, search) | 7 service + 6 controller |
+| Evolución Física | `PhysicalEvolutionService` (CRUD+findByMember) | `PhysicalEvolutionController` | `PhysicalEvolutionView` | 6 service + 6 controller |
+| Activos Gimnasio | `GymAssetService` (CRUD+generateNextCode, maintenanceSchedule) | `GymAssetController` | `GymAssetView` | 7 service + 6 controller |
+| Mantenimiento | `MaintenanceService` (CRUD+findByAsset, findByDateRange) | `MaintenanceController` | `MaintenanceView` | 7 service + 6 controller |
+| Plugins | `PluginService` (CRUD+getActive+execute) | `PluginsController` | `PluginsView` | 5 service + 5 controller |
+| **Integración** | — | — | — | **9 suites · 54+ tests + 59 módulos (440+ tests) · 0 fallos** |
 
 Cada módulo sigue el patrón: Service → Controller → View, con tests separados para Service y Controller.
 
@@ -171,18 +183,29 @@ src/
 ├── config/
 │   └── app.js                 — APP_CONFIG (tax rate, debounce, etc.)
 ├── database/
-│   ├── db.js                  — Dexie schema (8 versiones, v5 añadió contabilidad, v8 añadió índices performance)
-│   └── seed.js                — Datos iniciales (10 prod, 5 cli, 3 prov, 7 settings, 10 mov + transacciones seed)
-├── models/                    — 16 clases (Account, AccountingEntry, Product, Customer, Supplier, Sale, SaleItem,
-│                                Purchase, PurchaseItem, InventoryMovement, Setting,
-│                                User, Role, Permission, RolePermission, Session)
-├── repositories/              — 12 repos (Accounting, Product, Customer, Supplier, Sale,
-│                                Purchase, Inventory, Setting,
-│                                User, Role, Permission, Session)
-├── services/                  — 15 servicios (Password, Session, Permission,
-│                                Authentication, System, Accounting, +9 existentes)
-├── controllers/               — 14 controladores (Login, Setup, Accounting, +11 existentes)
-├── views/                     — 19 vistas (AccountingView container + 4 sub-vistas contables, ReportView container + 3 sub-vistas reportes, +11 existentes)
+│   ├── db.js                  — Dexie schema (v1: 16 tables incluyendo gimnasio y plugins)
+│   └── seed.js                — Datos iniciales (10 prod, 5 cli, 3 prov, 7 settings, 10 mov, transacciones seed)
+├── models/                    — 25 clases (Account, AccountingEntry, Product, Customer, Supplier,
+│                                Sale, SaleItem, Purchase, PurchaseItem, InventoryMovement, Setting,
+│                                User, Role, Permission, RolePermission, Session,
+│                                Member, Membership, MembershipPlan, MembershipHistory,
+│                                MembershipPayment, Attendance, Trainer, PhysicalEvolution,
+│                                GymAsset, Maintenance, Payment)
+├── repositories/              — 19 repos (Accounting, Product, Customer, Supplier, Sale,
+│                                Purchase, Inventory, Setting, User, Role, Permission, Session,
+│                                Member, Membership, MembershipPlan, MembershipHistory,
+│                                MembershipPayment, Attendance, Trainer, PhysicalEvolution,
+│                                GymAsset, Maintenance, Report, Plugin)
+├── services/                  — 22 servicios (Password, Session, Permission, Authentication, System,
+│                                Accounting, Dashboard, Export, Import, Inventory, Membership,
+│                                MembershipHistory, MembershipPlan, MembershipPayment,
+│                                Attendance, Trainer, PhysicalEvolution, GymAsset, Maintenance,
+│                                Payment, Plugin, UserService)
+├── controllers/               — 24 controladores (Login, Setup, Accounting, Export, Import,
+│                                + gym controllers, Payment, User)
+├── views/                     — 28 vistas (AccountingView container + 4 sub-vistas,
+│                                ReportView container + 3 sub-vistas reportes,
+│                                gym views, Plugin views)
 ├── components/                — 10 componentes (10 implementados)
 │     Table, Form (con readonly), Modal, Toast, Loader, ConfirmDialog, Header, Sidebar,
 │     Pagination, SearchBar
@@ -209,9 +232,22 @@ assets/
 tests/
 ├── run-all.js                 — Runner con DOM shim
 ├── runner.html                — Runner para navegador
-├── integration/               — 8 tests de integración (flujo venta/compra, contabilidad, import/export)
-├── services/                  — 13 archivos (Password, Session, Permission, Authentication, System, +8 existentes)
-└── controllers/               — 10 archivos (Login, Setup, +8 existentes)
+├── components/                — Form tests
+├── controllers/               — 17 suites (Accounting, Attendance, Customer, Dashboard, Export,
+│                              GymAsset, Import, Inventory, Login, Maintenance, Member,
+│                              Membership, MembershipHistory, MembershipPayment,
+│                              MembershipPlan, PhysicalEvolution, Plugins, Product,
+│                              Purchase, Report, Sale, Settings, Setup, Trainer, User)
+├── integration/               — 9 suites (venta/compra/contabilidad/import-export flows)
+├── repositories/              — Tests con mock de Dexie
+├── services/                  — 24 suites (Accounting, Attendance, Authentication, Customer,
+│                              Dashboard, Export, GymAsset, Import, Inventory, Maintenance,
+│                              Member, Membership, MembershipHistory, MembershipPayment,
+│                              MembershipPlan, MemberService, Payment, PhysicalEvolution,
+│                              Plugin, Product, Purchase, Report, Sale, Session, Suppler,
+│                              System, Trainer, User)
+├── e2e/                       — 38 Playwright tests + phase scripts
+└── utils/                     — 5 suites (Form, Sanitizer, Validators, Helpers, PasswordService)
 ```
 
 ---
@@ -265,7 +301,7 @@ Nota: Dexie se sirve desde `assets/lib/dexie.js` (copia local) para funcionar si
 2. **Sin framework UI**: Se eligió vanilla JS para mantener 0 dependencias y total control offline.
 3. **Seed con movimientos iniciales**: Cada producto seedeado crea un inventoryMovement de entrada, para que el stock calculado coincida desde el inicio.
 4. **Formulario de venta como View separada**: `SaleFormView` se extrajo de `SaleView` para cumplir el límite de 300 líneas.
-5. **Ocho versiones de DB schema**: La v3 añadió `updatedAt` a sales/purchases y `reference`/`referenceId` a inventoryMovements. La v4 añadió tablas de autenticación (users, roles, permissions, rolePermissions, sessions). La v5 añadió tablas de contabilidad (accounts, accountingEntries). La v8 (v6-v7 internas) añadió índices compuestos `[customerId+date]`, `[supplierId+date]`, `[referenceType+referenceId]` e índice simple `stock` en products para optimizar consultas.
+5. **Ocho versiones de DB schema** (heredado): La v4 añadió auth, v5 añadió contabilidad, v8 añadió índices. **F1 gimnasio**: Schema v1 con 16 tablas (products, members, suppliers, sales, saleItems, purchases, purchaseItems, inventoryMovements, settings, accounts, accountingEntries, usuarios/roles/permisos/sesiones, trainers, gymAssets, maintenance, attendance, memberships, membershipPlans, membershipHistory, membershipPayments, physicalEvolutions, plugins) en versión única con migración automática.
 6. **Tax rate configurable**: `setTaxRate`/`getTaxRate` desde `formatters.js`, se carga desde Settings al iniciar y se actualiza dinámicamente al guardar configuración. Por defecto 18 %.
 7. **Autenticación con RBAC**: Se implementó sistema completo de autenticación con roles y permisos. Primer inicio detecta ausencia de usuarios (no flags). Password hashing con PBKDF2 + SHA-512 via Web Crypto API.
 8. **Dexie servido localmente**: Se copió `dexie.mjs` a `assets/lib/dexie.js` para evitar dependencia de CDN/bundler y mantener compatibilidad offline.
@@ -304,6 +340,7 @@ Nota: Dexie se sirve desde `assets/lib/dexie.js` (copia local) para funcionar si
 - **Importar**: dropzone e importación bloqueados si no tiene `imports.create` (mensaje "Solo administradores")
 - **Usuarios**: módulo visible solo para usuarios con `users.view`; botones crear/editar/eliminar según permisos individuales
 - **Sidebar**: ítem "Usuarios" solo visible si `users.view` está habilitado
+- **Gimnasio**: Perfiles, Entrenadores, Activos, Mantenimiento, Asistencias, Membresías visibles según permisos `trainers.*`, `gymAssets.*`, `maintenance.*`, `attendance.*`, `memberships.*`
 
 ### Nuevo módulo: Usuarios (UserController + UserView)
 - CRUD completo de usuarios desde la UI
@@ -318,7 +355,8 @@ Nota: Dexie se sirve desde `assets/lib/dexie.js` (copia local) para funcionar si
 - **`manifest.json`**: `display: standalone`, iconos SVG 192x192 y 512x512, scope "/"
 - **`index.html`**: registro automático del SW, meta tags iOS y Android para instalación
 - **Icons**: `assets/icons/icon-192.svg` y `icon-512.svg`
-- **Scripts de instalación**: `setup.sh` (Linux) y `setup.bat` (Windows) — verifican Node.js, ejecutan `npm install`, copian Dexie a `assets/lib/`, inician servidor HTTP local y abren el navegador
+- **Scripts de instalación**: `setup.sh` (Linux) y `setup.bat` (Windows) — verifican Node.js, ejecutan `npm install`, copian Dexie a `assets/lib/`, detectan puerto libre persistente (`.openroot-port`), configuran auto-inicio opcional (cron/systemd/registro) e inician servidor HTTP local abriendo el navegador
+- **Scripts de desinstalación**: `uninstall.sh` (Linux) y `uninstall.bat` (Windows) — detienen servidor, remueven auto-inicio y limpian temporales; la carpeta del proyecto se elimina manualmente al final
 
 ## Importar datos desde JSON
 
@@ -353,6 +391,9 @@ Cada array sigue la misma estructura que genera el módulo **Exportar**. El impo
 - ~~Accesibilidad WCAG 2.1 AA (ARIA + Teclado + Contraste + Etiquetas) (Fase 6.2)~~ ✅
 - ~~Dividir vistas grandes: AccountingView, ReportView, PurchaseFormView~~ ✅
 - ~~E2E Testing (38 tests)~~ ✅
+- ~~F6-F10 (Gimnasio: Entrenadores, Evolución, Activos, Mantenimiento, Reportes)~~ ✅
+- ~~F11 (Export/Import extendidos)~~ ✅
+- ~~F12 (Docs + cierre)~~ ✅
 - Release v1.0.0 🎉
 
 ## E2E Tests

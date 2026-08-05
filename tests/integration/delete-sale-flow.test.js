@@ -1,7 +1,7 @@
 import { SaleService } from '../../src/services/SaleService.js'
 import { AccountingService } from '../../src/services/AccountingService.js'
 import { getTaxRate, setTaxRate } from '../../src/utils/formatters.js'
-import { assert, createMockDB, seedAccounts, seedProduct, seedCustomer } from './helpers.js'
+import { assert, createMockDB, seedAccounts, seedProduct, seedMember } from './helpers.js'
 
 export async function runDeleteSaleFlowTests() {
   setTaxRate(0.12)
@@ -9,14 +9,14 @@ export async function runDeleteSaleFlowTests() {
   const db = createMockDB()
   await seedAccounts(db)
   const product = await seedProduct(db, { id: 100, purchasePrice: 50, salePrice: 100, stock: 10 })
-  const customer = await seedCustomer(db)
+  const customer = await seedMember(db)
 
   const productRepo = {
     async findById(id) { const d = await db.products.get(id); return d ? { ...d } : null },
     async update(id, changes) { await db.products.update(id, changes); return this.findById(id) },
     async findAll() { return (await db.products.toArray()).map(d => ({ ...d })) }
   }
-  const customerRepo = { async findById(id) { const d = await db.customers.get(id); return d ? { ...d } : null } }
+  const memberRepo = { async findById(id) { const d = await db.members.get(id); return d ? { ...d } : null } }
   const inventoryRepo = {
     async getStockByProduct(productId) {
       const all = await db.inventoryMovements.toArray()
@@ -52,7 +52,7 @@ export async function runDeleteSaleFlowTests() {
     async count() { return db.sales.count() }
   }
 
-  const saleService = new SaleService(db, saleRepo, productRepo, customerRepo, inventoryRepo)
+  const saleService = new SaleService(db, saleRepo, productRepo, memberRepo, inventoryRepo)
   const accountingRepo = {
     async findAllAccounts() { return (await db.accounts.toArray()).map(d => ({ ...d })) },
     async findAccountByCode(code) { const a = (await db.accounts.toArray()).find(x => x.code === code); return a ? { ...a } : null },
@@ -81,7 +81,7 @@ export async function runDeleteSaleFlowTests() {
 
   // Step 1: Create sale
   const sale = await saleService.createSale(
-    { customerId: customer.id, customerName: customer.name },
+    { memberId: customer.id, memberName: customer.name },
     [{ productId: product.id, quantity: 3, unitPrice: 100 }]
   )
   assert(sale.status === 'completed', 'Sale should be completed')

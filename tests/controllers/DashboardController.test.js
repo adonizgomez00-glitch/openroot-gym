@@ -12,7 +12,11 @@ function createMockService() {
         totalCustomers: 8,
         totalSuppliers: 4,
         lowStock: 2,
-        criticalStock: 1
+        criticalStock: 1,
+        membershipsExpiring: 3,
+        todayMembershipRevenue: 500,
+        monthMembershipRevenue: 1500,
+        attendanceToday: 12
       }
     },
     async getMonthlySales() {
@@ -76,6 +80,10 @@ async function testInitCallsRenderAndLoadsKPIs() {
   assert(view.kpisData !== null, 'init debería cargar KPIs')
   assert(view.kpisData.todaySales === 3, 'init debería retornar todaySales correcto')
   assert(view.kpisData.totalProducts === 10, 'init debería retornar totalProducts correcto')
+  assert(view.kpisData.membershipsExpiring === 3, 'init debería retornar membershipsExpiring correcto')
+  assert(view.kpisData.todayMembershipRevenue === 500, 'init debería retornar todayMembershipRevenue correcto')
+  assert(view.kpisData.monthMembershipRevenue === 1500, 'init debería retornar monthMembershipRevenue correcto')
+  assert(view.kpisData.attendanceToday === 12, 'init debería retornar attendanceToday correcto')
 
   console.log('  ✓ testInitCallsRenderAndLoadsKPIs')
 }

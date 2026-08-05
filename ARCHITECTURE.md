@@ -63,7 +63,7 @@ Usuario interactúa
 ## Estructura de Directorios
 
 ```
-open-rooterp/
+OpenRoot-ERP/
 │
 ├── index.html                 # Entry point SPA
 ├── manifest.json              # PWA manifest
@@ -93,9 +93,18 @@ open-rooterp/
 │   ├── models/
 │   │   ├── Account.js         # Cuenta contable
 │   │   ├── AccountingEntry.js # Asiento contable
-│   │   ├── Customer.js        # Cliente
+│   │   ├── Attendance.js      # Asistencia de miembro
+│   │   ├── Customer.js        # Cliente (legacy alias)
+│   │   ├── GymAsset.js        # Activo del gimnasio
 │   │   ├── InventoryMovement.js
+│   │   ├── Maintenance.js     # Mantenimiento de activo
+│   │   ├── Member.js          # Miembro del gimnasio
+│   │   ├── Membership.js      # Membresía de miembro
+│   │   ├── MembershipHistory.js # Historial de cambios de membresía
+│   │   ├── MembershipPayment.js # Pago de membresía
+│   │   ├── MembershipPlan.js  # Plan de membresía
 │   │   ├── Permission.js      # Permiso RBAC
+│   │   ├── PhysicalEvolution.js # Evolución física de miembro
 │   │   ├── Product.js         # Producto
 │   │   ├── Purchase.js        # Compra
 │   │   ├── PurchaseItem.js    # Ítem de compra
@@ -106,13 +115,23 @@ open-rooterp/
 │   │   ├── Session.js         # Sesión de usuario
 │   │   ├── Setting.js         # Configuración del sistema
 │   │   ├── Supplier.js        # Proveedor
+│   │   ├── Trainer.js         # Entrenador del gimnasio
 │   │   └── User.js            # Usuario del sistema
 │   │
 │   ├── repositories/
 │   │   ├── AccountingRepository.js
+│   │   ├── AttendanceRepository.js
 │   │   ├── CustomerRepository.js
+│   │   ├── GymAssetRepository.js
 │   │   ├── InventoryRepository.js
+│   │   ├── MaintenanceRepository.js
+│   │   ├── MemberRepository.js
+│   │   ├── MembershipHistoryRepository.js
+│   │   ├── MembershipPaymentRepository.js
+│   │   ├── MembershipPlanRepository.js
+│   │   ├── MembershipRepository.js
 │   │   ├── PermissionRepository.js
+│   │   ├── PhysicalEvolutionRepository.js
 │   │   ├── ProductRepository.js
 │   │   ├── PurchaseRepository.js
 │   │   ├── ReportRepository.js
@@ -121,18 +140,30 @@ open-rooterp/
 │   │   ├── SessionRepository.js
 │   │   ├── SettingRepository.js
 │   │   ├── SupplierRepository.js
+│   │   ├── TrainerRepository.js
 │   │   └── UserRepository.js
 │   │
 │   ├── services/
 │   │   ├── AccountingService.js
+│   │   ├── AttendanceService.js
 │   │   ├── AuthenticationService.js
 │   │   ├── CustomerService.js
 │   │   ├── DashboardService.js
 │   │   ├── ExportService.js
+│   │   ├── GymAssetService.js
 │   │   ├── ImportService.js
 │   │   ├── InventoryService.js
+│   │   ├── MaintenanceService.js
+│   │   ├── MemberService.js
+│   │   ├── MembershipHistoryService.js
+│   │   ├── MembershipPaymentService.js
+│   │   ├── MembershipPlanService.js
+│   │   ├── MembershipService.js
 │   │   ├── PasswordService.js
+│   │   ├── PaymentService.js
 │   │   ├── PermissionService.js
+│   │   ├── PhysicalEvolutionService.js
+│   │   ├── PluginService.js
 │   │   ├── ProductService.js
 │   │   ├── PurchaseService.js
 │   │   ├── ReportService.js
@@ -140,16 +171,28 @@ open-rooterp/
 │   │   ├── SessionService.js
 │   │   ├── SettingService.js
 │   │   ├── SupplierService.js
-│   │   └── SystemService.js
+│   │   ├── SystemService.js
+│   │   ├── TrainerService.js
+│   │   └── UserService.js
 │   │
 │   ├── controllers/
 │   │   ├── AccountingController.js
+│   │   ├── AttendanceController.js
 │   │   ├── CustomerController.js
 │   │   ├── DashboardController.js
 │   │   ├── ExportController.js
+│   │   ├── GymAssetController.js
 │   │   ├── ImportController.js
 │   │   ├── InventoryController.js
 │   │   ├── LoginController.js
+│   │   ├── MaintenanceController.js
+│   │   ├── MemberController.js
+│   │   ├── MembershipController.js
+│   │   ├── MembershipHistoryController.js
+│   │   ├── MembershipPaymentController.js
+│   │   ├── MembershipPlanController.js
+│   │   ├── PhysicalEvolutionController.js
+│   │   ├── PluginsController.js
 │   │   ├── ProductController.js
 │   │   ├── PurchaseController.js
 │   │   ├── ReportController.js
@@ -157,25 +200,43 @@ open-rooterp/
 │   │   ├── SettingsController.js
 │   │   ├── SetupController.js
 │   │   ├── SupplierController.js
+│   │   ├── TrainerController.js
 │   │   └── UserController.js
 │   │
 │   ├── views/
 │   │   ├── AccountingView.js
+│   │   ├── AttendanceView.js
 │   │   ├── CustomerView.js
 │   │   ├── DashboardView.js
 │   │   ├── ExportView.js
+│   │   ├── GymAssetView.js
 │   │   ├── ImportView.js
 │   │   ├── InventoryView.js
 │   │   ├── LoginView.js
+│   │   ├── MaintenanceView.js
+│   │   ├── MemberView.js
+│   │   ├── MembershipView.js
+│   │   ├── MembershipHistoryView.js
+│   │   ├── MembershipPaymentView.js
+│   │   ├── MembershipPlanView.js
+│   │   ├── PhysicalEvolutionView.js
+│   │   ├── PluginsView.js
 │   │   ├── ProductView.js
 │   │   ├── PurchaseFormView.js
 │   │   ├── PurchaseView.js
 │   │   ├── ReportView.js
+│   │   ├── ReportSalesView.js
+│   │   ├── ReportPurchasesView.js
+│   │   ├── ReportStockView.js
+│   │   ├── ReportTrainersView.js
+│   │   ├── ReportGymAssetsView.js
+│   │   ├── ReportMaintenanceView.js
 │   │   ├── SaleFormView.js
 │   │   ├── SaleView.js
 │   │   ├── SettingsView.js
 │   │   ├── SetupView.js
 │   │   ├── SupplierView.js
+│   │   ├── TrainerView.js
 │   │   └── UserView.js
 │   │
 │   ├── components/
@@ -206,10 +267,10 @@ open-rooterp/
 │   ├── runner.html            # Test runner HTML
 │   ├── components/
 │   │   └── Form.test.js
-│   ├── controllers/           # 15 suites de controladores
+│   ├── controllers/           # 17 suites de controladores
 │   ├── integration/           # 9 suites de integración
 │   ├── repositories/          # Tests con mock de Dexie
-│   ├── services/              # 17 suites de servicios
+│   ├── services/              # 24 suites de servicios
 │   └── utils/                 # 5 suites de utilidades
 │
 ├── ROADMAP.md
@@ -286,13 +347,29 @@ const saleController = new SaleController(saleService, saleView);
 | `customers` | `++id` | `documentId`, `name`, `email`, `active` |
 | `suppliers` | `++id` | `documentId`, `name`, `email`, `active` |
 | `sales` | `++id` | `date`, `customerId`, `status` |
-| `saleItems` | `++id` | `saleId`, `productId` |
-| `purchases` | `++id` | `date`, `supplierId`, `status` |
-| `purchaseItems` | `++id` | `purchaseId`, `productId` |
-| `inventoryMovements` | `++id` | `productId`, `date`, `type` |
-| `settings` | `++id` | `key` |
-| `accounts` | `++id` | `code`, `name`, `type`, `active` |
-| `accountingEntries` | `++id` | `date`, `description`, `referenceType`, `referenceId` |
+   | `saleItems` | `++id` | `saleId`, `productId` |
+   | `purchases` | `++id` | `date`, `supplierId`, `status` |
+   | `purchaseItems` | `++id` | `purchaseId`, `productId` |
+   | `inventoryMovements` | `++id` | `productId`, `date`, `type` |
+   | `settings` | `++id` | `key` |
+   | `accounts` | `++id` | `code`, `name`, `type`, `active` |
+   | `accountingEntries` | `++id` | `date`, `description`, `referenceType`, `referenceId` |
+   | `members` | `++id` | `documentId`, `name`, `email`, `active` |
+   | `membershipPlans` | `++id` | `name`, `active` |
+   | `memberships` | `++id` | `memberId`, `startDate`, `endDate`, `status`, `active` |
+   | `membershipHistory` | `++id` | `membershipId`, `type`, `date` |
+   | `membershipPayments` | `++id` | `membershipId`, `amount`, `method`, `date` |
+   | `attendance` | `++id` | `memberId`, `date`, `time` |
+   | `trainers` | `++id` | `documentId`, `name`, `specialty`, `active` |
+   | `physicalEvolutions` | `++id` | `memberId`, `date` |
+   | `gymAssets` | `++id` | `code`, `name`, `type`, `status` |
+   | `maintenance` | `++id` | `assetId`, `date`, `type`, `status` |
+    | `plugins` | `++id` | `name`, `active` |
+    | `users` | `++id` | `username`, `email`, `roleId`, `active` |
+    | `roles` | `++id` | `name`, `active` |
+    | `permissions` | `++id` | `name`, `description`, `module` |
+    | `rolePermissions` | `++id` | `roleId`, `permissionId` |
+    | `sessions` | `++id` | `token`, `userId`, `expiresAt` |
 
 ### Relaciones lógicas
 
@@ -305,6 +382,15 @@ purchases N──1 suppliers
 accounts 1──N accountingEntries (via items[])
 sales 1──1 accountingEntries (auto-generated)
 purchases 1──1 accountingEntries (auto-generated)
+members 1──N memberships
+membershipPlans 1──N memberships
+memberships 1──N membershipHistory
+memberships 1──N membershipPayments
+members 1──N attendance
+members 1──N physicalEvolutions
+gymAssets 1──N maintenance
+users N──1 roles
+roles N──N permissions (via rolePermissions)
 ```
 
 ---
@@ -339,7 +425,7 @@ purchases 1──1 accountingEntries (auto-generated)
 | Integración | Custom runner | Flujos completos (venta/compra/contabilidad/import-export) |
 | Seguridad | Revisión manual | Validar OWASP Top 10 |
 
-**Total actual: 45 suites · 410+ tests · 0 fallos**
+**Total actual: 59 suites · 440+ tests · 0 fallos**
 
 Cada función debe ser:
 - Determinística

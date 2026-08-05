@@ -18,13 +18,13 @@
 | **Total de pruebas** | **525+** |
 | **Tasa de aprobación** | **100%** |
 | **Defectos encontrados y corregidos** | **16+ críticos** |
-| **Cobertura de módulos** | **14/14 completos** |
+| **Cobertura de módulos** | **27/27 completos** |
 
 ### Desglose por Tipo de Prueba
 
 | Tipo de Prueba | Cantidad | Suites | Aprobadas | Tasa |
 |----------------|----------|--------|-----------|------|
-| **Unitarias / Integración** | 410+ | 45 | 410+ | **100%** |
+| **Unit / Integration** | 440+ | 59 | 440+ | **100%** |
 | **E2E (Playwright)** | 38 | 1 | 38 | **100%** |
 | **QA Adversarial (5 fases)** | 76 | 4 archivos | 76 | **100%** |
 | ├─ Fase 2: Adversarial | 44 | - | 44 | 100% |
@@ -67,7 +67,7 @@
 
 ---
 
-## 📦 Módulos Implementados (14/14)
+## 📦 Módulos Implementados (27/27)
 
 | Módulo | Funcionalidad Clave | Tests |
 |--------|---------------------|-------|
@@ -196,6 +196,7 @@ npm install
 cp node_modules/dexie/dist/dexie.mjs assets/lib/dexie.js
 
 # 3. Servidor local (ES Modules requieren HTTP)
+# El puerto se detecta automáticamente y se guarda en .openroot-port
 python3 -m http.server 3000
 # Abrir http://localhost:3000
 ```
@@ -207,6 +208,31 @@ python3 -m http.server 3000
 3. Click "Configurar Sistema"
 4. Login con credenciales creadas
 5. ¡Listo! Datos de ejemplo precargados (10 productos, 5 clientes, 3 proveedores, 2 ventas, 2 compras, asientos contables)
+
+---
+
+## 🗑️ Desinstalación
+
+### Linux / macOS
+
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
+### Windows
+
+```batch
+uninstall.bat
+```
+
+Los scripts de desinstalación:
+- Detienen el servidor si está corriendo
+- Eliminan entradas de auto-inicio (cron, systemd, registro)
+- Limpian archivos temporales (`.openroot-port`)
+- **Solicitan confirmación antes de eliminar la carpeta del proyecto** (eliminación manual al final)
+
+Ver [UNINSTALL.md](docs/UNINSTALL.md) para detalles completos.
 
 ---
 
@@ -230,11 +256,12 @@ python3 -m http.server 3000
 ## 📁 Estructura del Proyecto
 
 ```
-open-rooterp/
+OpenRoot-ERP/
 ├── index.html                 # SPA entry point
 ├── manifest.json              # PWA manifest
 ├── sw.js                      # Service Worker
 ├── setup.sh / setup.bat       # Instalación automática
+├── uninstall.sh / uninstall.bat  # Auto-uninstall scripts
 │
 ├── assets/
 │   ├── css/                   # variables, reset, layout, components, utilities
@@ -324,13 +351,13 @@ MIT License — Ver [LICENSE](LICENSE) para detalles.
 | **Total Tests** | **525+** |
 | **Pass Rate** | **100%** |
 | **Defects Found & Fixed** | **16+ Critical** |
-| **Module Coverage** | **14/14 Complete** |
+| **Module Coverage** | **27/27 Complete** |
 
 ### Breakdown by Test Type
 
 | Test Type | Count | Suites | Passed | Rate |
 |-----------|-------|--------|--------|------|
-| **Unit / Integration** | 410+ | 45 | 410+ | **100%** |
+| **Unit / Integration** | 440+ | 59 | 440+ | **100%** |
 | **E2E (Playwright)** | 38 | 1 | 38 | **100%** |
 | **Adversarial QA (5 phases)** | 76 | 4 files | 76 | **100%** |
 | ├─ Phase 2: Adversarial | 44 | - | 44 | 100% |
@@ -373,7 +400,7 @@ MIT License — Ver [LICENSE](LICENSE) para detalles.
 
 ---
 
-## 📦 Implemented Modules (14/14)
+## 📦 Implemented Modules (27/27)
 
 | Module | Key Features | Tests |
 |--------|--------------|-------|
@@ -391,6 +418,17 @@ MIT License — Ver [LICENSE](LICENSE) para detalles.
 | 📥 **Import** | CSV/JSON, auto-detect, sanitization, prototype pollution guard | 55 |
 | 📋 **Accounting** | Chart of Accounts, Journal, Balance Sheet, P&L, auto entries | 24 |
 | 📊 **Dashboard** | 6 KPIs + 2 Chart.js charts (bar/donut) | 17 |
+
+### 🏋️ Módulos de Gimnasio (F6-F9)
+
+| Módulo | Funcionalidad Clave | Tests |
+|--------|---------------------|-------|
+| 👨‍🏫 **Entrenadores** | CRUD, especialidad, documento único, búsqueda | 18 |
+| 📈 **Evolución Física** | Registro por miembro: peso, altura, grasa, músculo, fotos | 20 |
+| 💪 **Activos Gimnasio** | CRUD, código auto-generado, mantenimiento, valor | 22 |
+| 🔧 **Mantenimiento** | Por activo, costos, fechas, estados (pending/in_progress/completed) | 22 |
+| 🏋️ **Reportes Gym** | Entrenadores, Activos, Mantenimiento + tabs extendidos | 10 |
+| 📥 **Export/Import Gym** | Entidades gym en export/import + auto-detect | 19 |
 
 ---
 
@@ -429,9 +467,9 @@ npm install
 # 2. Copy Dexie for offline mode (required)
 cp node_modules/dexie/dist/dexie.mjs assets/lib/dexie.js
 
-# 3. Unit + Integration tests (45 suites, 410+ tests)
+# 3. Unit + Integration tests (59 suites, 440+ tests)
 npm test
-# ✅ Expected: 45 suites passed, 0 failed
+# ✅ Expected: 59 suites passed, 0 failed
 
 # 4. E2E tests with Playwright (38 tests, port 3099)
 npm run test:e2e
@@ -502,8 +540,9 @@ npm install
 cp node_modules/dexie/dist/dexie.mjs assets/lib/dexie.js
 
 # 3. Local server (ES Modules require HTTP)
-python3 -m http.server 3000
-# Open http://localhost:3000
+# Port is auto-detected and saved in .openroot-port
+python3 -m http.server
+# Open the URL shown in the terminal
 ```
 
 ### First Run
@@ -513,6 +552,31 @@ python3 -m http.server 3000
 3. Click "Configure System"
 4. Login with created credentials
 5. **Done!** Preloaded sample data (10 products, 5 customers, 3 suppliers, 2 sales, 2 purchases, accounting entries)
+
+---
+
+## 🗑️ Uninstall
+
+### Linux / macOS
+
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
+### Windows
+
+```batch
+uninstall.bat
+```
+
+The uninstall scripts:
+- Stop the server if running
+- Remove auto-start entries (cron, systemd, registry)
+- Clean temporary files (`.openroot-port`)
+- **Ask for confirmation before deleting the project folder** (manual deletion at the end)
+
+See [UNINSTALL.md](docs/UNINSTALL.md) for full details.
 
 ---
 
@@ -536,11 +600,13 @@ python3 -m http.server 3000
 ## 📁 Project Structure
 
 ```
-open-rooterp/
+OpenRoot-ERP/
 ├── index.html                 # SPA entry point
 ├── manifest.json              # PWA manifest
 ├── sw.js                      # Service Worker
 ├── setup.sh / setup.bat       # Auto-install scripts
+├── uninstall.sh / uninstall.bat  # Auto-uninstall scripts
+├── uninstall.sh / uninstall.bat  # Auto-uninstall scripts
 │
 ├── assets/
 │   ├── css/                   # variables, reset, layout, components, utilities
@@ -551,13 +617,13 @@ open-rooterp/
 │   ├── app.js                 # Bootstrap, router, DI wiring
 │   ├── config/app.js          # Global constants
 │   ├── database/
-│   │   ├── db.js              # Dexie schema v8 (composite indexes)
+│   │   ├── db.js              # Dexie schema (v14: added gym + plugin tables)
 │   │   └── seed.js            # Initial data + seed transactions
-│   ├── models/                # 16 models (Account, Product, Sale, etc.)
-│   ├── repositories/          # 12 repos (encapsulate Dexie)
-│   ├── services/              # 15 services (business logic)
-│   ├── controllers/           # 14 controllers (orchestration)
-│   ├── views/                 # 19 views (render + events)
+│   ├── models/                # 25+ models (Product, Member, Trainer, GymAsset, etc.)
+│   ├── repositories/          # 19 repos (encapsulate Dexie)
+│   ├── services/              # 22 services (business logic)
+│   ├── controllers/           # 24 controllers (orchestration)
+│   ├── views/                 # 28+ views (render + events)
 │   ├── components/            # 10 reusable UI components
 │   ├── store/AppState.js      # Global state (reserved)
 │   └── utils/                 # sanitizer, validators, helpers, formatters, errors, ThemeManager
@@ -565,8 +631,8 @@ open-rooterp/
 ├── tests/
 │   ├── run-all.js             # Unit/Integration runner (DOM shim)
 │   ├── runner.html            # Browser runner
-│   ├── services/              # 13 service suites
-│   ├── controllers/           # 14 controller suites
+│   ├── services/              # 22 service suites
+│   ├── controllers/           # 17 controller suites
 │   ├── integration/           # 9 integration suites (54+ tests)
 │   ├── utils/                 # 5 utility suites
 │   └── e2e/                   # Playwright: smoke-visible, phase2-adversarial, phase3-stress, phase4-security, phase5-a11y

@@ -19,9 +19,17 @@ export class ReportController {
       const summary = await this._service.getSummary()
       this._view.updateSummary(summary)
       this._view.updateActiveTab(tab)
-
-      if (tab === 'stock') {
-        await this._loadStockReport()
+      const noDateTabs = ['stock', 'trainers', 'gymAssets']
+      if (noDateTabs.includes(tab)) {
+        this._view.showDateInputs(false)
+        if (tab === 'stock') {
+          await this._loadStockReport()
+        } else {
+          const report = await this._loadNoDateTabReport(tab)
+          if (report) {
+            this._renderReport(tab, report)
+          }
+        }
       } else {
         this._view.showDateInputs(true)
         const { startDate, endDate } = this._view.getDateRange()
@@ -52,11 +60,41 @@ export class ReportController {
           await this._loadStockReport()
           break
         }
+        case 'memberships': {
+          const report = await this._service.getMembershipReport(params.startDate, params.endDate)
+          this._view.renderMembershipsReport(report)
+          break
+        }
+        case 'attendance': {
+          const report = await this._service.getAttendanceReport(params.startDate, params.endDate)
+          this._view.renderAttendanceReport(report)
+          break
+        }
+        case 'maintenance': {
+          const report = await this._service.getMaintenanceReport(params.startDate, params.endDate)
+          this._view.renderMaintenanceReport(report)
+          break
+        }
       }
     } catch (error) {
       handleError(error, this._view)
     } finally {
       this._view.hideLoading()
+    }
+  }
+
+  async _loadNoDateTabReport(tab) {
+    switch (tab) {
+      case 'trainers': return await this._service.getTrainersReport()
+      case 'gymAssets': return await this._service.getGymAssetsReport()
+      default: return null
+    }
+  }
+
+  _renderReport(tab, report) {
+    switch (tab) {
+      case 'trainers': this._view.renderTrainersReport(report); break
+      case 'gymAssets': this._view.renderGymAssetsReport(report); break
     }
   }
 
@@ -73,6 +111,15 @@ export class ReportController {
     } else if (tab === 'purchases') {
       const report = await this._service.getPurchasesReport(startDate, endDate)
       this._view.renderPurchasesReport(report)
+    } else if (tab === 'memberships') {
+      const report = await this._service.getMembershipReport(startDate, endDate)
+      this._view.renderMembershipsReport(report)
+    } else if (tab === 'attendance') {
+      const report = await this._service.getAttendanceReport(startDate, endDate)
+      this._view.renderAttendanceReport(report)
+    } else if (tab === 'maintenance') {
+      const report = await this._service.getMaintenanceReport(startDate, endDate)
+      this._view.renderMaintenanceReport(report)
     }
   }
 }

@@ -140,7 +140,7 @@ export async function clickTab(tabId) {
 const sidebarMap = {
   dashboard: 'Dashboard',
   products: 'Productos',
-  customers: 'Clientes',
+  members: 'Miembros',
   suppliers: 'Proveedores',
   sales: 'Ventas',
   purchases: 'Compras',
@@ -150,11 +150,20 @@ const sidebarMap = {
   settings: 'Configuración',
   exports: 'Exportar',
   imports: 'Importar',
-  users: 'Usuarios'
+  users: 'Usuarios',
+  membershipPlans: 'Planes de Membresía',
+  memberships: 'Membresías',
+  membershipHistory: 'Historial de Membresías',
+  membershipPayments: 'Pagos de Membresías',
+   attendance: 'Asistencias',
+   trainers: 'Entrenadores',
+   physicalEvolutions: 'Evolución Física',
+   gymAssets: 'Activos del Gimnasio',
+   maintenance: 'Mantenimiento'
 }
 
 const moduleSelectors = {
-  customers: '.customers-table-wrapper',
+  members: '.members-table-wrapper',
   suppliers: '.suppliers-table-wrapper',
   sales: '.sales-table-wrapper',
   purchases: '.purchases-table-wrapper',
@@ -166,7 +175,16 @@ const moduleSelectors = {
   dashboard: '#dashboard-grid',
   exports: '#export-entity',
   imports: '.import-dropzone',
-  users: '.users-table-wrapper'
+  users: '.users-table-wrapper',
+  membershipPlans: '.membership-plans-table-wrapper',
+  memberships: '.memberships-table-wrapper',
+  membershipHistory: '.membership-history-table-wrapper',
+  membershipPayments: '.membership-payments-table-wrapper',
+  attendance: '.attendance-table-wrapper',
+  trainers: '.trainers-table-wrapper',
+  physicalEvolutions: '.physical-evolutions-table-wrapper',
+  gymAssets: '.gym-assets-table-wrapper',
+  maintenance: '.maintenance-table-wrapper'
 }
 
 export async function openModule(moduleName) {
