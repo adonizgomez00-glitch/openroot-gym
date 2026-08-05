@@ -1,25 +1,12 @@
 # Desinstalación — Open Root Gym
 
-## Resumen
+La desinstalación se hace en pasos. La **carpeta del proyecto nunca se elimina automáticamente** (paso manual al final).
 
-La desinstalación de Open Root Gym se realiza en 5 pasos. La eliminación de la carpeta del proyecto es **manual y se realiza al final**, nunca de forma automática.
-
-## Pasos
-
-### 1. Detener el servidor
-
-Si el servidor está corriendo, detenlo con `Ctrl+C` en la terminal donde se inició, o ejecuta:
-
-```bash
-pkill -f "http.server"
-```
-
-### 2. Ejecutar el script de desinstalación
+## 1. Ejecutar el script de desinstalación
 
 **Linux / macOS:**
 ```bash
-chmod +x uninstall.sh
-./uninstall.sh
+uninstall.sh      # o si no tiene permiso de ejecución:  bash uninstall.sh
 ```
 
 **Windows:**
@@ -27,65 +14,61 @@ chmod +x uninstall.sh
 uninstall.bat
 ```
 
-El script realiza automáticamente:
-- Detiene el servidor si está corriendo
-- Elimina entradas de auto-inicio (cron, systemd, registro de Windows)
-- Limpia archivos temporales (`.openroot-port`)
+El script hace automáticamente:
 
-### 3. Eliminar auto-inicio manual (si el script no lo detectó)
+- **Detiene el servidor** si está corriendo (busca el proceso en los puertos 3000/3001/3002 — Linux), o por puerto vía `netstat`/`taskkill` (Windows).
+- **Elimina solo su propia entrada de auto-inicio**:
+  - **cron (Linux):** quita la línea `@reboot` que referencia *este directorio* (filtro por proyecto con `grep -vF "$(pwd)"`), de modo que **no borra** el `@reboot` de otras apps ni tus jobs de producción.
+  - **systemd (Linux):** elimina `~/.config/systemd/user/openroot-gym.service`.
+  - **Windows:** elimina `OpenRootGym.vbs` de la carpeta de Inicio (y el `OpenRootGym.bat` antiguo si existiera) y la entrada `HKCU\...\Run\OpenRootGym` si la hay.
+- **Limpia archivos temporales** (`.openroot-port`, `.openroot-port.bak`).
+- Te indica el comando para eliminar la carpeta del proyecto (paso manual).
 
-**Linux/macOS — cron:**
+## 2. Detener el servidor en caliente (si hace falta)
+
+**Linux:**
 ```bash
-crontab -l | grep -v "http.server" | crontab -
-```
-
-**Linux/macOS — systemd:**
-```bash
-systemctl --user disable openroot-gym.service
-rm -f ~/.config/systemd/user/openroot-gym.service
-```
-
-**Windows — carpeta de inicio:**
-```batch
-del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\OpenRootGym.bat"
-```
-
-**Windows — registro:**
-```batch
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OpenRootGym /f
-```
-
-### 4. Limpiar datos de IndexedDB
-
-Si deseas borrar toda la información almacenada localmente:
-
-1. Abrir el navegador
-2. Presionar `F12` (DevTools)
-3. Ir a **Application** → **Clear storage**
-4. Click en **Clear site data**
-
-### 5. Eliminar la carpeta del proyecto (manual)
-
-La carpeta **nunca se elimina automáticamente**. Para completar la desinstalación, ejecuta manualmente:
-
-**Linux / macOS:**
-```bash
-rm -rf /ruta/a/OpenRoot-ERP
-```
-
-**Windows (cmd):**
-```batch
-rd /s /q "C:\ruta\a\OpenRoot-ERP"
+pkill -f "python3 -m http.server"
 ```
 
 **Windows (PowerShell):**
 ```powershell
-Remove-Item -Recurse -Force "C:\ruta\a\OpenRoot-ERP"
+Get-NetTCPConnection -LocalPort 3000,3001,3002 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
 ```
 
-## Eliminar el repositorio de GitHub
+> `taskkill /F /IM python.exe` cierra todos los procesos de Python; úsalo solo si no hay otros scripts de Python en ejecución.
 
-Si deseas eliminar también el repo remoto:
+## 3. Limpiar datos de IndexedDB (en el navegador)
+
+Para borrar toda la información guardada localmente:
+
+1. Abrir la app en el navegador.
+2. Pulsar `F12` (DevTools) → pestaña **Application**.
+3. Sección **Storage → IndexedDB**, clic derecho sobre `OpenRootGym` (el origen que uses) → **Clear**.
+4. Recargar la página.
+
+O bien: candado/ícono del sitio en la barra de direcciones → **Datos del sitio** → **Borrar datos**.
+
+> Los datos viven en el navegador, **no** en `~/apps-locales`. Cada origen (`localhost:3000`, `192.168.0.150:3000`, etc.) tiene su propia base.
+
+## 4. Eliminar la carpeta del proyecto (manual)
+
+**Linux / macOS:**
+```bash
+rm -rf /ruta/a/OpenRootGym
+```
+
+**Windows (cmd):**
+```batch
+rd /s /q "C:\ruta\a\OpenRootGym"
+```
+
+**Windows (PowerShell):**
+```powershell
+Remove-Item -Recurse -Force "C:\ruta\a\OpenRootGym"
+```
+
+## 5. Eliminar el repositorio de GitHub (opcional)
 
 ```bash
 gh repo delete adonizgomez00-glitch/openroot-gym --yes
@@ -93,7 +76,6 @@ gh repo delete adonizgomez00-glitch/openroot-gym --yes
 
 ## Notas
 
-- Los datos de IndexedDB se pierden al eliminar la carpeta del proyecto
-- No hay datos en servidores remotos — todo es local
-- Si reinstalas, el puerto guardado en `.openroot-port` se reutilizará automáticamente
-- El script de desinstalación no elimina la carpeta del proyecto por seguridad
+- El script **no** elimina la carpeta del proyecto por seguridad.
+- Si reinicias el sistema después del `uninstall.sh`, el servidor **ya no** volverá a arrancar solo.
+- Si reinstalas después, el puerto se detectará y guardará de nuevo automáticamente.

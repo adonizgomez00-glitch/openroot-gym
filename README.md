@@ -186,6 +186,8 @@ chmod +x setup.sh
 setup.bat
 ```
 
+Los scripts instalan dependencias, copian Dexie a `assets/lib`, detectan un **puerto persistente** (`.openroot-port`) y configuran el **auto-inicio del servidor**: systemd/cron `@reboot` en Linux, y un lanzador oculto (`OpenRootGym.vbs`) en la carpeta de Inicio de Windows que arranca sin ventana cmd. Si instalas varias de estas apps, cada una conserva su propia entrada y usa un puerto distinto (3000, 3001, …).
+
 ### Opción B: Manual
 
 ```bash
@@ -218,6 +220,7 @@ python3 -m http.server 3000
 ```bash
 chmod +x uninstall.sh
 ./uninstall.sh
+# o: bash uninstall.sh si no tiene permiso de ejecución
 ```
 
 ### Windows
@@ -228,9 +231,9 @@ uninstall.bat
 
 Los scripts de desinstalación:
 - Detienen el servidor si está corriendo
-- Eliminan entradas de auto-inicio (cron, systemd, registro)
+- Eliminan **solo la entrada de auto-inicio de esta app** (cron por proyecto, systemd, lanzador `.vbs`/`.bat` de Windows) sin tocar otras apps ni tus tareas de producción
 - Limpian archivos temporales (`.openroot-port`)
-- **Solicitan confirmación antes de eliminar la carpeta del proyecto** (eliminación manual al final)
+- **La carpeta del proyecto se elimina manualmente al final** (nunca de forma automática)
 
 Ver [UNINSTALL.md](docs/UNINSTALL.md) para detalles completos.
 
@@ -246,7 +249,8 @@ Ver [UNINSTALL.md](docs/UNINSTALL.md) para detalles completos.
 | [TODO](TODO.md) | Checklist 371 líneas, todas las fases ✅ |
 | [ESTADO PROYECTO](docs/PROJECT_STATE.md) | Métricas detalladas, deuda técnica, riesgos, archivos clave |
 | [CONTEXTO](docs/Context.md) | Stack, 14 módulos, utils, RBAC, fixes, skills prioritarias |
-| [INSTALACIÓN](docs/INSTALL.md) | Setup.sh/bat, manual, primer uso, actualización |
+| [INSTALACIÓN](docs/INSTALL.md) | Instalación y auto-inicio (setup.sh/bat) |
+| [DESINSTALACIÓN](docs/UNINSTALL.md) | Desinstalación (uninstall.sh/bat), limpieza de datos |
 | [TESTS E2E](docs/E2E_TESTS.md) | 76 tests + smoke test visible, helpers, cobertura por módulo |
 | [RESULTADOS QA](docs/QA_RESULTS.md) | 160 tests totales, 100% pass, hallazgos corregidos |
 | [TEMA](docs/THEME_MANAGER.md) | ThemeManager API, singleton, localStorage, uso |
@@ -530,6 +534,8 @@ chmod +x setup.sh
 setup.bat
 ```
 
+The scripts install dependencies, copy Dexie to `assets/lib`, detect a **persistent port** (`.openroot-port`) and configure **server auto-start**: systemd/cron `@reboot` on Linux, and a hidden launcher (`OpenRootGym.vbs`) in the Windows Startup folder that runs without a cmd window. If you install several of these apps, each keeps its own entry and uses a different port (3000, 3001, …).
+
 ### Option B: Manual
 
 ```bash
@@ -562,6 +568,7 @@ python3 -m http.server
 ```bash
 chmod +x uninstall.sh
 ./uninstall.sh
+# or: bash uninstall.sh if not executable
 ```
 
 ### Windows
@@ -572,9 +579,9 @@ uninstall.bat
 
 The uninstall scripts:
 - Stop the server if running
-- Remove auto-start entries (cron, systemd, registry)
+- Remove **only this app's auto-start entry** (project-scoped cron, systemd, Windows `.vbs`/`.bat` launcher) without touching other apps or your production jobs
 - Clean temporary files (`.openroot-port`)
-- **Ask for confirmation before deleting the project folder** (manual deletion at the end)
+- **The project folder is deleted manually at the end** (never automatically)
 
 See [UNINSTALL.md](docs/UNINSTALL.md) for full details.
 
@@ -590,7 +597,8 @@ See [UNINSTALL.md](docs/UNINSTALL.md) for full details.
 | [TODO](TODO.md) | 371-line checklist, all phases ✅ |
 | [PROJECT STATE](docs/PROJECT_STATE.md) | Detailed metrics, tech debt, risks, key files |
 | [CONTEXT](docs/Context.md) | Stack, 14 modules, utils, RBAC, fixes, priority skills |
-| [INSTALL](docs/INSTALL.md) | Setup.sh/bat, manual, first run, updates |
+| [INSTALL](docs/INSTALL.md) | Install and auto-start (setup.sh/bat) |
+| [UNINSTALL](docs/UNINSTALL.md) | Uninstall (uninstall.sh/bat), data cleanup |
 | [E2E TESTS](docs/E2E_TESTS.md) | 76 tests + visible smoke test, helpers, module coverage |
 | [QA RESULTS](docs/QA_RESULTS.md) | 160 total tests, 100% pass, fixed findings |
 | [THEME](docs/THEME_MANAGER.md) | ThemeManager API, singleton, localStorage, usage |
