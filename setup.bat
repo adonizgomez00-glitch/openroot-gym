@@ -1,9 +1,12 @@
 @echo off
-title ERP Ligero Offline - Instalacion
+title Open Root Gym - Instalacion
 chcp 65001 >nul
 
+REM Ejecutar siempre desde el propio directorio del proyecto
+cd /d "%~dp0"
+
 echo ========================================
-echo   ERP Ligero Offline - Instalacion
+echo   Open Root Gym - Instalacion
 echo ========================================
 echo.
 
