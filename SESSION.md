@@ -2,6 +2,7 @@
 
 ## Fecha
 Agosto 4, 2026 — F12: Documentación completa y cierre
+**Update deps**: 2026-10-22 — dexie/playwright al día, 0 vulns, 61/61 tests OK
 
 ## Estado general
 **v1.0.0** — Primer release. 59 suites unit/integration (440+ tests), 38 tests E2E, 76 escenarios QA adversariales, 5 fases QA completadas. 0 fallos en todas las suites.
